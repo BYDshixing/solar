@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>硅光电池光照度计算器</title>
+    <title>硅光电池光照度计算器 (综合校准版)</title>
     <style>
         body {
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
@@ -38,12 +38,15 @@
             color: #555;
             margin-bottom: 20px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.6;
         }
         .formula-box span {
             font-weight: bold;
             color: #D95319;
+            font-size: 16px;
+            display: block;
+            margin: 8px 0;
         }
         .input-group {
             margin-bottom: 15px;
@@ -69,17 +72,6 @@
         }
         .input-group input:placeholder-shown {
             border: 1px solid #ccc;
-        }
-        .k-display {
-            text-align: center;
-            font-size: 14px;
-            color: #D95319;
-            font-weight: bold;
-            background-color: #fff3ed;
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            display: none; 
         }
         button {
             width: 100%;
@@ -107,6 +99,7 @@
             font-weight: bold;
             color: #333;
             display: none; 
+            text-align: center;
         }
         hr {
             border: 0;
@@ -147,21 +140,18 @@
 <body>
 
 <div class="container">
-    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5 高精度拟合版)</span></h2>
+    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(物理补偿终极版)</span></h2>
     
     <div class="formula-box">
-        已嵌入三次多项式高精度拟合模型：<br>
-        
-        <span>K = -0.03557 U³ + 1.0353 U² - 5.3794 U + 8.8943</span><br>
-        <span>E = K / d²  (d的单位为米)</span>
+        已嵌入包含环境光补偿与光心偏移的拟合公式：
+        <span>E = 0.3765 × U² / (d + 0.0612)² + 59.08</span>
+        <div style="font-size:12px; color:#888; margin-top:5px;">(U为电压V，d为距离m)</div>
     </div>
 
     <div class="input-group">
         <label for="lampU">灯泡电压 U (V):</label>
         <input type="number" id="lampU" placeholder="适用范围 4~12V" step="any" inputmode="decimal" oninput="generateTable()">
     </div>
-    
-    <div id="kDisplay" class="k-display"></div>
 
     <hr style="margin-top: 10px;">
 
@@ -191,45 +181,30 @@
 </div>
 
 <script>
-    // 引擎升级：采用截图中的三次多项式公式
-    function calculateDynamicK(u) {
-        let k = -0.03557 * u * u * u + 1.0353 * u * u - 5.3794 * u + 8.8943;
-        // 物理逻辑兜底：K不应为负
-        return k > 0 ? k : 0; 
-    }
-
-    function getEc(d, k) {
-        if (d <= 0) return 0;
-        return k / (d * d);
+    // 全新的一步到位物理公式引擎
+    function calculateE(u, d) {
+        if (d < 0) return 0; // 距离防呆设计
+        // 公式：E = 0.3765 * U^2 / (d + 0.0612)^2 + 59.08
+        let e = 0.3765 * (u * u) / Math.pow((d + 0.0612), 2) + 59.08;
+        return e;
     }
 
     function generateTable() {
         const uVal = parseFloat(document.getElementById('lampU').value);
         const tbody = document.getElementById('tableBody');
-        const kDisplay = document.getElementById('kDisplay');
         
         if (isNaN(uVal)) {
             tbody.innerHTML = '<tr><td colspan="2" style="color:#999;">等待输入电压...</td></tr>';
-            kDisplay.style.display = 'none';
             return;
-        }
-
-        const currentK = calculateDynamicK(uVal);
-        
-        kDisplay.style.display = 'block';
-        if (currentK === 0) {
-            kDisplay.innerHTML = `当前电压过低，发光强度 K ≈ 0`;
-        } else {
-            kDisplay.innerHTML = `系统已自动计算发光强度：K = ${currentK.toFixed(3)}`; // 保留3位小数体现高精度
         }
 
         const distances = [0.05, 0.07, 0.09, 0.11, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23, 0.25];
         tbody.innerHTML = ""; 
 
         distances.forEach(d => {
-            const ec = getEc(d, currentK);
+            const ec = calculateE(uVal, d);
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`; // 结果保留2位小数
+            row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`;
             tbody.appendChild(row);
         });
     }
@@ -244,11 +219,10 @@
             return;
         }
 
-        const currentK = calculateDynamicK(u);
-        const ec = getEc(d, currentK);
+        const ec = calculateE(u, d);
         
         resultBox.style.display = "block";
-        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(3)})<br>距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(2)} Lx</span>`;
+        resultBox.innerHTML = `在 ${u}V 电压下，距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 26px; display:inline-block; margin-top:8px;">${ec.toFixed(2)} Lx</span>`;
     }
 </script>
 
