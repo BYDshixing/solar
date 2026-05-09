@@ -11,7 +11,7 @@
             color: #333;
             display: flex;
             justify-content: center;
-            padding: 20px 10px; /* 适配手机的屏幕边缘 */
+            padding: 20px 10px;
             margin: 0;
         }
         .container {
@@ -21,7 +21,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             max-width: 600px;
             width: 100%;
-            box-sizing: border-box; /* 确保 padding 不会撑破屏幕 */
+            box-sizing: border-box;
         }
         h2 {
             text-align: center;
@@ -32,21 +32,25 @@
         }
         .formula-box {
             background-color: #f8f9fa;
-            border: 1px dashed #ccc;
-            padding: 10px;
+            border: 1px dashed #0072BD;
+            padding: 12px;
             text-align: center;
-            font-weight: bold;
             color: #555;
             margin-bottom: 20px;
             border-radius: 6px;
-            font-size: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .formula-box span {
+            font-weight: bold;
+            color: #D95319;
         }
         .input-group {
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap; /* 允许折行 */
+            flex-wrap: wrap;
         }
         .input-group label {
             font-weight: bold;
@@ -55,19 +59,31 @@
         }
         .input-group input {
             width: 50%;
-            padding: 12px 10px; /* 加大点击区域 */
-            border: 1px solid #0072BD; 
+            padding: 12px 10px;
+            border: 2px solid #0072BD; 
             border-radius: 6px;
             font-size: 16px;
             background-color: #fff;
             box-sizing: border-box;
+            transition: border-color 0.3s;
         }
         .input-group input:placeholder-shown {
             border: 1px solid #ccc;
         }
+        .k-display {
+            text-align: center;
+            font-size: 14px;
+            color: #D95319;
+            font-weight: bold;
+            background-color: #fff3ed;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none; /* 默认隐藏 */
+        }
         button {
             width: 100%;
-            padding: 14px; /* 加大按钮高度，方便手机点击 */
+            padding: 14px;
             background-color: #0072BD;
             color: white;
             border: none;
@@ -105,7 +121,7 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 12px 8px; /* 优化表格间距 */
+            padding: 12px 8px;
             text-align: center;
             font-size: 15px;
         }
@@ -113,28 +129,17 @@
             background-color: #f8f9fa;
             color: #333;
         }
-        .tip {
-            text-align: center;
-            font-size: 13px;
-            color: #D95319;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        /* ==========================================
-           这部分专门针对手机屏幕 (宽度小于 500px 时生效)
-           ========================================== */
         @media (max-width: 500px) {
             .input-group {
-                flex-direction: column; /* 改为上下排列 */
+                flex-direction: column;
                 align-items: flex-start;
             }
             .input-group label {
                 width: 100%;
-                margin-bottom: 8px; /* 文字和输入框留点空隙 */
+                margin-bottom: 8px;
             }
             .input-group input {
-                width: 100%; /* 输入框占满整行 */
+                width: 100%;
             }
         }
     </style>
@@ -142,24 +147,23 @@
 <body>
 
 <div class="container">
-    <h2>💡 硅光电池光照度计算器</h2>
+    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5 小灯泡动态专属版)</span></h2>
     
     <div class="formula-box">
-        公式：Ec = (k × U) / d²
+        已嵌入发光特性拟合模型：<br>
+        <span>K = 0.1816 U² + 0.9668 U - 5.4487</span><br>
+        <span>Ec = K / d²</span>
     </div>
 
-    <div class="input-group">
-        <label for="constantK">比例常数 (k):</label>
-        <input type="number" id="constantK" value="18.2" step="any" oninput="generateTable()">
-    </div>
     <div class="input-group">
         <label for="lampU">灯泡电压 U (V):</label>
-        <input type="number" id="lampU" placeholder="请输入电压" step="any" inputmode="decimal" oninput="generateTable()">
+        <input type="number" id="lampU" placeholder="适用范围 4~12V" step="any" inputmode="decimal" oninput="generateTable()">
     </div>
     
-    <p class="tip">温馨提示：输入电压后，下方表格将自动生成</p>
+    <!-- 实时显示K值的区域 -->
+    <div id="kDisplay" class="k-display"></div>
 
-    <hr>
+    <hr style="margin-top: 10px;">
 
     <h3 style="text-align: center; color: #555; margin-bottom: 15px;">📊 实验表格数据</h3>
     
@@ -187,26 +191,48 @@
 </div>
 
 <script>
-    function getEc(d, k, u) {
+    // 核心物理引擎升级：根据电压 U 自动计算 K
+    function calculateDynamicK(u) {
+        // 根据截图提供的二次拟合公式计算
+        let k = 0.1816 * u * u + 0.9668 * u - 5.4487;
+        // 如果电压过低导致K为负数，按常理小灯泡不发光，K记为0
+        return k > 0 ? k : 0; 
+    }
+
+    // 最终计算照度 Ec = K / d^2
+    function getEc(d, k) {
         if (d <= 0) return 0;
-        return (k * u) / (d * d);
+        return k / (d * d);
     }
 
     function generateTable() {
-        const kVal = parseFloat(document.getElementById('constantK').value);
         const uVal = parseFloat(document.getElementById('lampU').value);
         const tbody = document.getElementById('tableBody');
+        const kDisplay = document.getElementById('kDisplay');
         
         if (isNaN(uVal)) {
             tbody.innerHTML = '<tr><td colspan="2" style="color:#999;">等待输入电压...</td></tr>';
+            kDisplay.style.display = 'none';
             return;
         }
 
+        // 第一步：自动算出当前的 K 值
+        const currentK = calculateDynamicK(uVal);
+        
+        // 界面上展示算出来的 K 值
+        kDisplay.style.display = 'block';
+        if (currentK === 0) {
+            kDisplay.innerHTML = `当前电压过低，灯泡不发光 (K ≈ 0)`;
+        } else {
+            kDisplay.innerHTML = `系统已自动计算发光强度：K = ${currentK.toFixed(2)}`;
+        }
+
+        // 第二步：用算好的 K 批量生成表格
         const distances = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25];
         tbody.innerHTML = ""; 
 
         distances.forEach(d => {
-            const ec = getEc(d, kVal, uVal);
+            const ec = getEc(d, currentK);
             const row = document.createElement('tr');
             row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(1)}</td>`;
             tbody.appendChild(row);
@@ -214,7 +240,6 @@
     }
 
     function calculateManual() {
-        const k = parseFloat(document.getElementById('constantK').value);
         const u = parseFloat(document.getElementById('lampU').value);
         const d = parseFloat(document.getElementById('distance').value);
         const resultBox = document.getElementById('resultBox');
@@ -224,9 +249,11 @@
             return;
         }
 
-        const ec = getEc(d, k, u);
+        const currentK = calculateDynamicK(u);
+        const ec = getEc(d, currentK);
+        
         resultBox.style.display = "block";
-        resultBox.innerHTML = `在 ${u}V 下，距离 ${d} cm 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(1)} Lx</span>`;
+        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(2)})<br>距离 ${d} cm 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(1)} Lx</span>`;
     }
 </script>
 
