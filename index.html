@@ -79,7 +79,7 @@
             padding: 8px;
             border-radius: 4px;
             margin-bottom: 15px;
-            display: none; /* 默认隐藏 */
+            display: none; 
         }
         button {
             width: 100%;
@@ -147,12 +147,12 @@
 <body>
 
 <div class="container">
-    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5 小灯泡)</span></h2>
+    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5)</span></h2>
     
     <div class="formula-box">
         已嵌入发光特性拟合模型：<br>
         <span>K = 0.1816 U² + 0.9668 U - 5.4487</span><br>
-        <span>Ec = K / d²</span>
+        <span>Ec = K / d²  (d的单位为米)</span>
     </div>
 
     <div class="input-group">
@@ -160,7 +160,6 @@
         <input type="number" id="lampU" placeholder="适用范围 4~12V" step="any" inputmode="decimal" oninput="generateTable()">
     </div>
     
-    <!-- 实时显示K值的区域 -->
     <div id="kDisplay" class="k-display"></div>
 
     <hr style="margin-top: 10px;">
@@ -170,7 +169,7 @@
     <table>
         <thead>
             <tr>
-                <th>距离 d (cm)</th>
+                <th>距离 d (m)</th>
                 <th>光照度 Ec (Lx)</th>
             </tr>
         </thead>
@@ -183,23 +182,20 @@
 
     <h3 style="text-align: center; color: #555;">单次距离计算</h3>
     <div class="input-group">
-        <label for="distance">特定距离 d (cm):</label>
-        <input type="number" id="distance" placeholder="例如: 12.5" step="any" inputmode="decimal">
+        <!-- 标签和提示语已全部改为米 (m) -->
+        <label for="distance">特定距离 d (m):</label>
+        <input type="number" id="distance" placeholder="例如: 0.125" step="any" inputmode="decimal">
     </div>
     <button onclick="calculateManual()">计算该点</button>
     <div class="result-box" id="resultBox"></div>
 </div>
 
 <script>
-    // 核心物理引擎升级：根据电压 U 自动计算 K
     function calculateDynamicK(u) {
-        // 根据截图提供的二次拟合公式计算
         let k = 0.1816 * u * u + 0.9668 * u - 5.4487;
-        // 如果电压过低导致K为负数，按常理小灯泡不发光，K记为0
         return k > 0 ? k : 0; 
     }
 
-    // 最终计算照度 Ec = K / d^2
     function getEc(d, k) {
         if (d <= 0) return 0;
         return k / (d * d);
@@ -216,10 +212,8 @@
             return;
         }
 
-        // 第一步：自动算出当前的 K 值
         const currentK = calculateDynamicK(uVal);
         
-        // 界面上展示算出来的 K 值
         kDisplay.style.display = 'block';
         if (currentK === 0) {
             kDisplay.innerHTML = `当前电压过低，灯泡不发光 (K ≈ 0)`;
@@ -227,8 +221,7 @@
             kDisplay.innerHTML = `系统已自动计算发光强度：K = ${currentK.toFixed(2)}`;
         }
 
-        // 第二步：用算好的 K 批量生成表格
-        const distances = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25];
+        const distances = [0.05, 0.07, 0.09, 0.11, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23, 0.25];
         tbody.innerHTML = ""; 
 
         distances.forEach(d => {
@@ -253,7 +246,7 @@
         const ec = getEc(d, currentK);
         
         resultBox.style.display = "block";
-        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(2)})<br>距离 ${d} cm 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(1)} Lx</span>`;
+        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(2)})<br>距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(1)} Lx</span>`;
     }
 </script>
 
