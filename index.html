@@ -147,12 +147,13 @@
 <body>
 
 <div class="container">
-    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5)</span></h2>
+    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(DH-CGOP5 高精度拟合版)</span></h2>
     
     <div class="formula-box">
-        已嵌入发光特性拟合模型：<br>
-        <span>K = 0.1816 U² + 0.9668 U - 5.4487</span><br>
-        <span>Ec = K / d²  (d的单位为米)</span>
+        已嵌入三次多项式高精度拟合模型：<br>
+        
+        <span>K = -0.03557 U³ + 1.0353 U² - 5.3794 U + 8.8943</span><br>
+        <span>E = K / d²  (d的单位为米)</span>
     </div>
 
     <div class="input-group">
@@ -170,7 +171,7 @@
         <thead>
             <tr>
                 <th>距离 d (m)</th>
-                <th>光照度 Ec (Lx)</th>
+                <th>光照度 E (Lx)</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -182,7 +183,6 @@
 
     <h3 style="text-align: center; color: #555;">单次距离计算</h3>
     <div class="input-group">
-        <!-- 标签和提示语已全部改为米 (m) -->
         <label for="distance">特定距离 d (m):</label>
         <input type="number" id="distance" placeholder="例如: 0.125" step="any" inputmode="decimal">
     </div>
@@ -191,8 +191,10 @@
 </div>
 
 <script>
+    // 引擎升级：采用截图中的三次多项式公式
     function calculateDynamicK(u) {
-        let k = 0.1816 * u * u + 0.9668 * u - 5.4487;
+        let k = -0.03557 * u * u * u + 1.0353 * u * u - 5.3794 * u + 8.8943;
+        // 物理逻辑兜底：K不应为负
         return k > 0 ? k : 0; 
     }
 
@@ -216,9 +218,9 @@
         
         kDisplay.style.display = 'block';
         if (currentK === 0) {
-            kDisplay.innerHTML = `当前电压过低，灯泡不发光 (K ≈ 0)`;
+            kDisplay.innerHTML = `当前电压过低，发光强度 K ≈ 0`;
         } else {
-            kDisplay.innerHTML = `系统已自动计算发光强度：K = ${currentK.toFixed(2)}`;
+            kDisplay.innerHTML = `系统已自动计算发光强度：K = ${currentK.toFixed(3)}`; // 保留3位小数体现高精度
         }
 
         const distances = [0.05, 0.07, 0.09, 0.11, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23, 0.25];
@@ -227,7 +229,7 @@
         distances.forEach(d => {
             const ec = getEc(d, currentK);
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(1)}</td>`;
+            row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`; // 结果保留2位小数
             tbody.appendChild(row);
         });
     }
@@ -246,7 +248,7 @@
         const ec = getEc(d, currentK);
         
         resultBox.style.display = "block";
-        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(2)})<br>距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(1)} Lx</span>`;
+        resultBox.innerHTML = `在 ${u}V 电压下 (实时K=${currentK.toFixed(3)})<br>距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 22px;">${ec.toFixed(2)} Lx</span>`;
     }
 </script>
 
