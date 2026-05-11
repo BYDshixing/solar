@@ -114,13 +114,21 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 12px 8px;
+            padding: 10px 8px;
             text-align: center;
-            font-size: 15px;
+            font-size: 14px;
         }
         th {
             background-color: #f8f9fa;
             color: #333;
+            position: sticky;
+            top: 0;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 6px;
         }
         @media (max-width: 500px) {
             .input-group {
@@ -140,12 +148,12 @@
 <body>
 
 <div class="container">
-    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(物理补偿终极版)</span></h2>
+    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;">(0.01m 高密度采样版)</span></h2>
     
     <div class="formula-box">
-        拟合公式：
+        校准拟合公式：
         <span>E = 0.3765 × U² / (d + 0.0612)² + 59.08</span>
-        <div style="font-size:12px; color:#888; margin-top:5px;">(U为电压V，d为距离m)</div>
+        <div style="font-size:12px; color:#888; margin-top:5px;">(U电压V，d距离m)</div>
     </div>
 
     <div class="input-group">
@@ -155,19 +163,21 @@
 
     <hr style="margin-top: 10px;">
 
-    <h3 style="text-align: center; color: #555; margin-bottom: 15px;">📊 实验表格数据</h3>
+    <h3 style="text-align: center; color: #555; margin-bottom: 15px;">📊 实验表格数据 (步长 0.01m)</h3>
     
-    <table>
-        <thead>
-            <tr>
-                <th>距离 d (m)</th>
-                <th>光照度 E (Lx)</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="2" style="color:#999;">请在上方输入灯泡电压</td></tr>
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>距离 d (m)</th>
+                    <th>光照度 E (Lx)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="2" style="color:#999;">请在上方输入灯泡电压</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     <hr>
 
@@ -181,10 +191,8 @@
 </div>
 
 <script>
-    // 全新的一步到位物理公式引擎
     function calculateE(u, d) {
-        if (d < 0) return 0; // 距离防呆设计
-        // 公式：E = 0.3765 * U^2 / (d + 0.0612)^2 + 59.08
+        if (d < 0) return 0;
         let e = 0.3765 * (u * u) / Math.pow((d + 0.0612), 2) + 59.08;
         return e;
     }
@@ -198,15 +206,17 @@
             return;
         }
 
-        const distances = [0.05, 0.07, 0.09, 0.11, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23, 0.25];
         tbody.innerHTML = ""; 
 
-        distances.forEach(d => {
+        // 自动循环：从 0.05 到 0.25，步长为 0.01
+        // 使用整数循环再除以100，避免JS浮点数运算的小数位精度问题
+        for (let i = 5; i <= 25; i++) {
+            let d = i / 100;
             const ec = calculateE(uVal, d);
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${d}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`;
+            row.innerHTML = `<td>${d.toFixed(2)}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`;
             tbody.appendChild(row);
-        });
+        }
     }
 
     function calculateManual() {
@@ -222,7 +232,7 @@
         const ec = calculateE(u, d);
         
         resultBox.style.display = "block";
-        resultBox.innerHTML = `在 ${u}V 电压下，距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 26px; display:inline-block; margin-top:8px;">${ec.toFixed(2)} Lx</span>`;
+        resultBox.innerHTML = `在 ${u}V 下，距离 ${d} m 的光照度为：<br><span style="color:#D95319; font-size: 26px; display:inline-block; margin-top:8px;">${ec.toFixed(2)} Lx</span>`;
     }
 </script>
 
