@@ -3,145 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="硅光电池光照度计算器 - 输入灯泡电压自动生成各距离光照度数据表">
+    <meta name="description" content="硅光电池光照度计算器">
     <title>硅光电池光照度计算器</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --bg: #f0f4f8;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --border2: #cbd5e1;
-            --accent: #2563eb;
-            --accent-light: #eff6ff;
-            --accent2: #ea580c;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --radius: 12px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --bg:         #edf2fb;
+            --white:      #ffffff;
+            --card-bg:    rgba(255,255,255,0.88);
+            --border:     #dde6f5;
+            --accent:     #2563eb;
+            --accent-lt:  #eff6ff;
+            --accent2:    #ea580c;
+            --text:       #1e293b;
+            --muted:      #64748b;
+            --radius-xl:  20px;
+            --radius-lg:  14px;
+            --shadow-card: 0 4px 20px rgba(37,99,235,0.08), 0 1px 4px rgba(0,0,0,0.04);
         }
         html, body {
             font-family: 'Outfit', 'Microsoft YaHei', sans-serif;
             -webkit-text-size-adjust: none;
             text-size-adjust: none;
+            overflow: hidden;
+            width: 100%; height: 100%;
             background: var(--bg);
-            color: var(--text);
         }
-        /* ══════════════════════════════════════════════
-           SECTION VISIBILITY RULES
-           - desktop (.desktop-app): shown ≥ 768px always
-           - portrait guard:         shown < 768px portrait
-           - mobile app wrap:        shown < 768px landscape
-        ══════════════════════════════════════════════ */
-        /* Desktop default */
-        .desktop-app   { display: flex; }
-        .rotate-guard  { display: none; }
-        .mobile-wrap   { display: none; }
-        /* Mobile: hide desktop */
+        /* ══════════════════════════════
+           SECTION VISIBILITY
+        ══════════════════════════════ */
+        .desktop-app  { display: flex; }
+        .rotate-guard { display: none; }
+        .mobile-wrap  { display: none; }
         @media (max-width: 767px) {
             .desktop-app { display: none !important; }
         }
-        /* Mobile portrait: show rotate guard */
         @media (max-width: 767px) and (orientation: portrait) {
             .rotate-guard { display: flex; }
             .mobile-wrap  { display: none; }
         }
-        /* Mobile landscape: show rotated app */
         @media (max-width: 767px) and (orientation: landscape) {
             .rotate-guard { display: none; }
             .mobile-wrap  { display: block; }
         }
-        /* ══════════════════════════════════════════════
-           PORTRAIT ROTATE GUARD
-        ══════════════════════════════════════════════ */
+        /* ══════════════════════════════
+           PORTRAIT GUARD
+        ══════════════════════════════ */
         .rotate-guard {
             position: fixed; inset: 0; z-index: 9999;
-            background: #0a0f1e;
+            background: linear-gradient(145deg, #1e3a8a, #312e81);
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 22px;
-            color: #e2e8f0;
+            align-items: center; justify-content: center;
+            gap: 20px; color: #e0eaff;
         }
         .rotate-guard .phone-icon {
-            font-size: 64px;
+            font-size: 60px;
             animation: tilt 1.6s ease-in-out infinite alternate;
         }
         @keyframes tilt {
-            0%   { transform: rotate(-20deg); }
-            100% { transform: rotate(20deg); }
+            from { transform: rotate(-20deg); }
+            to   { transform: rotate(20deg); }
         }
-        .rotate-guard h2 { font-size: 20px; font-weight: 700; color: #60a5fa; }
-        .rotate-guard p  { font-size: 13px; color: #64748b; }
-        /* ══════════════════════════════════════════════
-           MOBILE LANDSCAPE APP  (180° flipped)
-        ══════════════════════════════════════════════ */
+        .rotate-guard h2 { font-size: 20px; font-weight: 700; color: #93c5fd; }
+        .rotate-guard p  { font-size: 13px; color: #7d9fc5; }
+        /* ══════════════════════════════
+           MOBILE WRAP  (180° rotated)
+        ══════════════════════════════ */
         .mobile-wrap {
             position: fixed; inset: 0;
             width: 100vw; height: 100vh;
             transform: rotate(180deg);
             transform-origin: center center;
-            overflow: hidden;
         }
+        /* ── MOBILE INNER APP ── */
         .mobile-app {
             width: 100%; height: 100%;
-            background: var(--bg);
+            background: linear-gradient(135deg, #dce8fb 0%, #edf2fb 50%, #f0f4ff 100%);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            padding: 12px;
+            gap: 12px;
+        }
+        /* LEFT BRANDING PANEL */
+        .m-left {
+            width: 30%;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            padding: 8px 4px;
+        }
+        .m-app-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 24px rgba(79,124,249,0.35), 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .m-app-title {
+            font-size: 18px; font-weight: 800;
+            color: var(--text); line-height: 1.25;
+        }
+        .m-app-desc {
+            font-size: 11px; color: var(--muted); line-height: 1.6;
+        }
+        .m-formula-badge {
+            display: inline-block;
+            background: var(--accent-lt);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 10px; font-weight: 700;
+            color: var(--accent);
+            line-height: 1.5;
+        }
+        /* RIGHT CONTENT PANEL */
+        .m-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             overflow: hidden;
         }
-        /* Mobile topbar */
-        .m-topbar {
-            flex-shrink: 0;
-            height: 50px;
+        /* Input card */
+        .m-input-card {
             background: var(--white);
-            border-bottom: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 14px;
-            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
         }
-        .m-logo {
-            display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+        .m-input-label {
+            font-size: 11px; font-weight: 700; color: var(--muted);
+            white-space: nowrap; flex-shrink: 0;
         }
-        .m-logo .icon {
-            width: 30px; height: 30px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            border-radius: 7px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
-            box-shadow: 0 2px 6px rgba(37,99,235,0.3);
-        }
-        .m-logo .title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
-        .m-logo .sub   { font-size: 9px; color: var(--text-muted); }
-        .m-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-        .m-formula {
-            background: var(--accent-light);
-            border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 16px;
-            padding: 3px 10px;
-            font-size: 10px; font-weight: 600;
-            color: #1d4ed8;
-            white-space: nowrap;
-        }
-        .m-input-group {
-            display: flex; align-items: center; gap: 6px;
-            margin-left: auto; flex-shrink: 0;
-        }
-        .m-input-group label { font-size: 10px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
-        .m-input-wrap { position: relative; }
+        .m-input-wrap { position: relative; flex: 1; }
         .m-input-wrap input {
-            width: 90px;
-            padding: 5px 26px 5px 9px;
-            border: 1.5px solid var(--border2);
-            border-radius: 8px;
-            font-size: 17px; font-weight: 700;
+            width: 100%;
+            padding: 8px 36px 8px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 22px; font-weight: 700;
             font-family: 'Outfit', monospace;
             color: var(--text);
-            background: var(--white);
+            background: #f7faff;
             outline: none;
             -webkit-appearance: none;
             transition: border-color 0.2s, box-shadow 0.2s;
@@ -149,85 +161,152 @@
         .m-input-wrap input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            background: var(--white);
         }
-        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
+        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
         .m-input-unit {
-            position: absolute; right: 7px; top: 50%;
+            position: absolute; right: 12px; top: 50%;
             transform: translateY(-50%);
-            font-size: 11px; font-weight: 600; color: var(--text-muted);
+            font-size: 13px; font-weight: 700; color: var(--muted);
             pointer-events: none;
         }
-        .m-stats { display: flex; gap: 5px; flex-shrink: 0; }
-        .m-stat {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 2px 8px;
-            text-align: center;
-            white-space: nowrap;
+        /* Stats row */
+        .m-stats-row {
+            display: flex; gap: 10px; flex-shrink: 0;
         }
-        .m-stat .sv { font-size: 12px; font-weight: 700; color: var(--accent); }
-        .m-stat.alt .sv { color: var(--accent2); }
-        .m-stat .sk { font-size: 8px; color: var(--text-muted); }
-        /* Mobile table area */
-        .m-table-area {
+        .m-stat-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            padding: 10px 14px;
+        }
+        .m-stat-card .sv {
+            font-size: 26px; font-weight: 800;
+            color: var(--accent); line-height: 1;
+        }
+        .m-stat-card.alt .sv { color: var(--accent2); }
+        .m-stat-card .sk {
+            font-size: 10px; color: var(--muted); margin-top: 4px;
+        }
+        /* Table card */
+        .m-table-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .m-table-header {
+            padding: 8px 14px 6px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 6px;
+            flex-shrink: 0;
+        }
+        .m-table-header span {
+            font-size: 11px; font-weight: 700; color: var(--accent);
+        }
+        .m-table-header .hint {
+            margin-left: auto;
+            font-size: 9px; color: var(--muted);
+        }
+        .m-table-scroll {
             flex: 1;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 8px 12px;
             display: flex;
             align-items: center;
+            padding: 6px 10px;
         }
-        /* Mobile bottom bar */
-        .m-bottombar {
-            flex-shrink: 0; height: 22px;
+        /* ── SHARED HTABLE ── */
+        table.htable {
+            border-collapse: separate; border-spacing: 0;
+            width: max-content;
+        }
+        .htable .row-label {
+            position: sticky; left: 0; z-index: 2;
             background: var(--white);
-            border-top: 1px solid var(--border);
-            display: flex; align-items: center;
-            padding: 0 12px; gap: 14px;
+            border-right: 2px solid var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding: 0 10px;
+            font-size: 10px; font-weight: 700;
+            color: var(--accent); white-space: nowrap;
+            vertical-align: middle;
         }
-        .m-bottombar span { font-size: 9px; color: var(--text-muted); }
-        .m-bottombar .hl { color: var(--accent); font-weight: 600; }
-        /* ══════════════════════════════════════════════
-           DESKTOP APP
-        ══════════════════════════════════════════════ */
+        .htable tr:last-child .row-label {
+            border-bottom: none;
+            color: var(--accent2); border-right-color: var(--accent2);
+        }
+        .htable .row-label span {
+            display: block; font-size: 8px; font-weight: 400;
+            color: var(--muted); margin-top: 1px;
+        }
+        .htable .data-cell {
+            text-align: center; padding: 0 5px;
+            font-weight: 500; color: var(--text);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid #f0f4fb;
+            background: var(--white);
+            white-space: nowrap; vertical-align: middle;
+        }
+        .htable .data-cell.alt { background: #f7faff; }
+        .htable tr:last-child .data-cell {
+            border-bottom: none; font-weight: 700;
+            color: var(--accent); background: var(--accent-lt);
+        }
+        .htable tr:last-child .data-cell.alt { background: #dbeafe; }
+        .htable .data-cell:hover { background: #e0edff !important; }
+        /* Mobile table sizing */
+        .m-table-scroll .htable .row-label { min-width: 72px; height: 32px; }
+        .m-table-scroll .htable .data-cell  { min-width: 52px; height: 32px; font-size: 11px; }
+        .m-table-scroll .htable tr:last-child .data-cell { font-size: 12px; }
+        /* Desktop table sizing */
+        .d-table-scroll .htable .row-label { min-width: 100px; height: 54px; font-size: 12px; padding: 0 16px; }
+        .d-table-scroll .htable .data-cell  { min-width: 76px;  height: 54px; font-size: 14px; }
+        /* Empty */
+        .empty-state {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; gap: 8px; color: var(--muted);
+        }
+        .empty-state .ei { font-size: 32px; opacity: 0.35; }
+        .empty-state p   { font-size: 12px; }
+        /* ══════════════════════════════
+           DESKTOP APP  (unchanged style)
+        ══════════════════════════════ */
         .desktop-app {
-            min-height: 100vh;
-            flex-direction: row;
-            overflow: hidden;
-            height: 100vh;
+            height: 100vh; overflow: hidden;
         }
-        /* Desktop sidebar */
         .d-side {
-            width: 260px;
-            flex-shrink: 0;
+            width: 260px; flex-shrink: 0;
             background: var(--white);
             border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            padding: 24px 18px;
+            display: flex; flex-direction: column;
+            gap: 18px; padding: 24px 18px;
             overflow-y: auto;
         }
         .d-logo { display: flex; align-items: center; gap: 10px; }
         .d-logo .icon {
             width: 42px; height: 42px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
             border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
             font-size: 22px; flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+            box-shadow: 0 4px 12px rgba(79,124,249,0.3);
         }
-        .d-logo .title  { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
-        .d-logo .sub    { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+        .d-logo .dtitle { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .d-logo .dsub   { font-size: 10px; color: var(--muted); margin-top: 1px; }
         .d-divider { height: 1px; background: var(--border); }
         .d-formula-card {
-            background: var(--accent-light);
+            background: var(--accent-lt);
             border: 1px solid rgba(37,99,235,0.18);
-            border-radius: var(--radius);
+            border-radius: var(--radius-lg);
             padding: 14px;
         }
-        .d-section-label {
+        .d-slabel {
             font-size: 10px; font-weight: 700;
             color: var(--accent); letter-spacing: 0.08em;
             text-transform: uppercase; margin-bottom: 10px;
@@ -236,24 +315,17 @@
             font-size: 13px; font-weight: 700;
             color: var(--accent2); text-align: center; line-height: 1.9;
         }
-        .d-formula-note {
-            font-size: 11px; color: var(--text-muted);
-            text-align: center; margin-top: 8px;
-        }
+        .d-formula-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
         .d-input-card { display: flex; flex-direction: column; gap: 10px; }
         .d-input-wrap { position: relative; }
         .d-input-wrap input {
-            width: 100%;
-            padding: 13px 46px 13px 14px;
-            background: var(--white);
-            border: 1.5px solid var(--border2);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 22px; font-weight: 700;
-            font-family: 'Outfit', monospace;
+            width: 100%; padding: 13px 46px 13px 14px;
+            background: var(--white); border: 1.5px solid var(--border);
+            border-radius: 10px; color: var(--text);
+            font-size: 22px; font-weight: 700; font-family: 'Outfit', monospace;
             outline: none; -webkit-appearance: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .d-input-wrap input:focus {
             border-color: var(--accent);
@@ -261,185 +333,115 @@
         }
         .d-input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
         .d-input-unit {
-            position: absolute; right: 13px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px; font-weight: 600;
-            color: var(--text-muted); pointer-events: none;
+            position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+            font-size: 14px; font-weight: 600; color: var(--muted); pointer-events: none;
         }
-        .d-hint { font-size: 11px; color: var(--text-muted); }
-        .d-stats {
-            margin-top: auto;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-        }
+        .d-hint { font-size: 11px; color: var(--muted); }
+        .d-stats { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .d-stat-box {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 8px; text-align: center;
+            background: #f7faff; border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 8px; text-align: center;
         }
         .d-stat-box .sv { font-size: 17px; font-weight: 700; color: var(--accent); }
         .d-stat-box.alt .sv { color: var(--accent2); }
-        .d-stat-box .sk { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-        /* Desktop main */
+        .d-stat-box .sk { font-size: 10px; color: var(--muted); margin-top: 3px; }
         .d-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .d-main-header {
-            padding: 14px 22px;
-            background: var(--white);
+            padding: 14px 22px; background: var(--white);
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0;
         }
-        .d-main-header h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .d-main-header h2 { font-size: 13px; font-weight: 600; color: var(--muted); }
         .badge {
-            background: var(--accent-light);
-            color: var(--accent);
+            background: var(--accent-lt); color: var(--accent);
             border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 20px;
-            padding: 4px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600;
         }
         .d-table-scroll {
             flex: 1; overflow-x: auto; overflow-y: auto;
             padding: 22px; background: var(--bg);
         }
-        /* ══════════════════════════════════════════════
-           SHARED: Horizontal 2-row table
-        ══════════════════════════════════════════════ */
-        table.htable {
-            border-collapse: separate; border-spacing: 0;
-            width: max-content;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        .htable .row-label {
-            position: sticky; left: 0; z-index: 2;
-            background: var(--white);
-            border-right: 2px solid var(--accent);
-            border-bottom: 1px solid var(--border);
-            padding: 0 14px;
-            font-size: 11px; font-weight: 700;
-            color: var(--accent);
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-        .htable tr:last-child .row-label {
-            border-bottom: none;
-            color: var(--accent2);
-            border-right-color: var(--accent2);
-            background: #fffbf7;
-        }
-        .htable .row-label span {
-            display: block; font-size: 9px; font-weight: 400;
-            color: var(--text-muted); margin-top: 1px;
-        }
-        .htable .data-cell {
-            text-align: center; padding: 0 6px;
-            font-weight: 500; color: var(--text);
-            border-bottom: 1px solid var(--border);
-            border-right: 1px solid #f1f5f9;
-            background: var(--white);
-            white-space: nowrap; vertical-align: middle;
-            transition: background 0.12s;
-        }
-        .htable .data-cell.alt { background: #f8faff; }
-        .htable tr:last-child .data-cell {
-            border-bottom: none;
-            font-weight: 700;
-            color: #1d4ed8;
-            background: var(--accent-light);
-        }
-        .htable tr:last-child .data-cell.alt { background: #dbeafe; }
-        .htable .data-cell:hover { background: #e0edff !important; }
-        /* Desktop table: bigger cells */
-        .d-table-scroll .htable .row-label { min-width: 100px; height: 54px; font-size: 12px; padding: 0 16px; }
-        .d-table-scroll .htable .data-cell { min-width: 76px; height: 54px; font-size: 14px; }
-        /* Mobile table: compact cells */
-        .m-table-area .htable .row-label { min-width: 80px; height: 36px; font-size: 10px; padding: 0 10px; }
-        .m-table-area .htable .data-cell { min-width: 56px; height: 36px; font-size: 11px; padding: 0 5px; }
-        .m-table-area .htable tr:last-child .data-cell { font-size: 12px; }
-        /* Empty state */
-        .empty-state {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            height: 100%; gap: 12px; color: var(--text-muted);
-        }
-        .empty-state .ei { font-size: 44px; opacity: 0.35; }
-        .empty-state p { font-size: 14px; }
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #c8d6ea; border-radius: 2px; }
     </style>
 </head>
 <body>
-<!-- ═══ 1. PORTRAIT GUARD (mobile only) ═══ -->
+<!-- ═══ 1. PORTRAIT GUARD ═══ -->
 <div class="rotate-guard">
     <div class="phone-icon">📱</div>
     <h2>请横屏使用</h2>
     <p>将手机旋转至横屏方向以加载实验数据表</p>
 </div>
-<!-- ═══ 2. MOBILE LANDSCAPE APP (rotated 180°) ═══ -->
+<!-- ═══ 2. MOBILE LANDSCAPE  (rotated 180°) ═══ -->
 <div class="mobile-wrap">
-    <div class="mobile-app">
-        <div class="m-topbar">
-            <div class="m-logo">
-                <div class="icon">💡</div>
-                <div>
-                    <div class="title">硅光电池光照度计算器</div>
-                    <div class="sub">E = 0.3765·U² / (d+0.0612)² + 59.08</div>
-                </div>
-            </div>
-            <div class="m-sep"></div>
-            <div class="m-formula">U (V) · d (m) → E (Lx)</div>
-            <div class="m-input-group">
-                <label for="lampU_m">灯泡电压</label>
-                <div class="m-input-wrap">
-                    <input type="number" id="lampU_m" placeholder="4~12"
-                           step="any" inputmode="decimal" autocomplete="off"
-                           oninput="onInput('m', this.value)">
-                    <span class="m-input-unit">V</span>
-                </div>
-            </div>
-            <div class="m-stats">
-                <div class="m-stat">
-                    <div class="sv" id="mStatMin">—</div>
-                    <div class="sk">最小 Lx</div>
-                </div>
-                <div class="m-stat alt">
-                    <div class="sv" id="mStatMax">—</div>
-                    <div class="sk">最大 Lx</div>
-                </div>
+<div class="mobile-app">
+    <!-- LEFT: Branding -->
+    <div class="m-left">
+        <div class="m-app-icon">💡</div>
+        <div class="m-app-title">硅光电池<br>光照度计算器</div>
+        <div class="m-app-desc">硅光电池光照度标据害，执造设计高清电光照度计算器。</div>
+        <div class="m-formula-badge">
+            E = 0.3765 × U²<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ (d + 0.0612)²<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 59.08
+        </div>
+    </div>
+    <!-- RIGHT: Controls + Table -->
+    <div class="m-right">
+        <!-- Input -->
+        <div class="m-input-card">
+            <span class="m-input-label">灯泡电压</span>
+            <div class="m-input-wrap">
+                <input type="number" id="lampU_m"
+                       placeholder="适用范围 4 ~ 12"
+                       step="any" inputmode="decimal" autocomplete="off"
+                       oninput="onInput('m', this.value)">
+                <span class="m-input-unit">V</span>
             </div>
         </div>
-        <div class="m-table-area" id="mTableArea">
-            <div class="empty-state">
-                <div class="ei">🔦</div>
-                <p>输入灯泡电压，表格横向自动生成</p>
+        <!-- Stats -->
+        <div class="m-stats-row">
+            <div class="m-stat-card">
+                <div class="sv" id="mStatMin">—</div>
+                <div class="sk">最小光照度（Lx）</div>
+            </div>
+            <div class="m-stat-card alt">
+                <div class="sv" id="mStatMax">—</div>
+                <div class="sk">最大光照度（Lx）</div>
             </div>
         </div>
-        <div class="m-bottombar">
-            <span>步长 <span class="hl">0.01 m</span></span>
-            <span>d = <span class="hl">0.05 → 0.25 m</span></span>
-            <span>共 <span class="hl">21</span> 组</span>
-            <span style="margin-left:auto; font-size:9px; color:#94a3b8;">← 左右滑动查看全部 →</span>
+        <!-- Table card -->
+        <div class="m-table-card">
+            <div class="m-table-header">
+                <span>📊 实验数据表</span>
+                <span class="hint">← 左右滑动查看全部 21 组数据 →</span>
+            </div>
+            <div class="m-table-scroll" id="mTableArea">
+                <div class="empty-state">
+                    <div class="ei">🔦</div>
+                    <p>输入灯泡电压，表格横向自动生成</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<!-- ═══ 3. DESKTOP APP (normal, always upright) ═══ -->
+</div>
+<!-- ═══ 3. DESKTOP APP ═══ -->
 <div class="desktop-app">
     <aside class="d-side">
         <div class="d-logo">
             <div class="icon">💡</div>
             <div>
-                <div class="title">硅光电池<br>光照度计算器</div>
-                <div class="sub">Silicon Photodiode E-Meter</div>
+                <div class="dtitle">硅光电池<br>光照度计算器</div>
+                <div class="dsub">Silicon Photodiode E-Meter</div>
             </div>
         </div>
         <div class="d-divider"></div>
         <div class="d-formula-card">
-            <div class="d-section-label">📐 综合校准公式</div>
+            <div class="d-slabel">📐 综合校准公式</div>
             <div class="d-formula-expr">
                 E = 0.3765 × U²<br>
                 ──────────────<br>
@@ -449,9 +451,10 @@
             <div class="d-formula-note">U 电压（V）　·　d 距离（m）</div>
         </div>
         <div class="d-input-card">
-            <div class="d-section-label">⚡ 灯泡电压</div>
+            <div class="d-slabel">⚡ 灯泡电压</div>
             <div class="d-input-wrap">
-                <input type="number" id="lampU_d" placeholder="4 ~ 12"
+                <input type="number" id="lampU_d"
+                       placeholder="4 ~ 12"
                        step="any" inputmode="decimal" autocomplete="off"
                        oninput="onInput('d', this.value)">
                 <span class="d-input-unit">V</span>
@@ -476,9 +479,9 @@
             <span class="badge">21 组数据</span>
         </header>
         <div class="d-table-scroll" id="dTableArea">
-            <div class="empty-state">
-                <div class="ei">🔦</div>
-                <p>请在左侧输入灯泡电压</p>
+            <div class="empty-state" style="height:100%;">
+                <div class="ei" style="font-size:52px;">🔦</div>
+                <p style="font-size:15px;">请在左侧输入灯泡电压</p>
                 <p style="font-size:13px; opacity:.6;">表格将横向自动生成</p>
             </div>
         </div>
@@ -489,13 +492,13 @@
         return 0.3765 * u * u / Math.pow(d + 0.0612, 2) + 59.08;
     }
     function buildTable(areaId, minId, maxId, uVal) {
-        const area = document.getElementById(areaId);
+        const area    = document.getElementById(areaId);
         const statMin = document.getElementById(minId);
         const statMax = document.getElementById(maxId);
         if (isNaN(uVal)) {
             area.innerHTML = '<div class="empty-state"><div class="ei">🔦</div><p>请输入灯泡电压</p></div>';
-            statMin.textContent = '—';
-            statMax.textContent = '—';
+            if (statMin) statMin.textContent = '—';
+            if (statMax) statMax.textContent = '—';
             return;
         }
         const cols = [];
@@ -504,12 +507,12 @@
             cols.push({ d: d.toFixed(2), e: calcE(uVal, d).toFixed(2) });
         }
         const eVals = cols.map(c => parseFloat(c.e));
-        statMin.textContent = Math.min(...eVals).toFixed(1);
-        statMax.textContent = Math.max(...eVals).toFixed(1);
+        if (statMin) statMin.textContent = Math.min(...eVals).toFixed(1);
+        if (statMax) statMax.textContent = Math.max(...eVals).toFixed(1);
         const tbl = document.createElement('table');
         tbl.className = 'htable';
-        // Row 1: d
-        const tr1 = document.createElement('tr');
+        // Row 1: distance d
+        const tr1  = document.createElement('tr');
         const lbl1 = document.createElement('th');
         lbl1.className = 'row-label';
         lbl1.innerHTML = '距离 d<span>单位 m</span>';
@@ -521,8 +524,8 @@
             tr1.appendChild(td);
         });
         tbl.appendChild(tr1);
-        // Row 2: E
-        const tr2 = document.createElement('tr');
+        // Row 2: illuminance E
+        const tr2  = document.createElement('tr');
         const lbl2 = document.createElement('th');
         lbl2.className = 'row-label';
         lbl2.innerHTML = '光照度 E<span>单位 Lx</span>';
@@ -539,11 +542,8 @@
     }
     function onInput(src, val) {
         const u = parseFloat(val);
-        if (src === 'd') {
-            buildTable('dTableArea', 'dStatMin', 'dStatMax', u);
-        } else {
-            buildTable('mTableArea', 'mStatMin', 'mStatMax', u);
-        }
+        if (src === 'd') buildTable('dTableArea', 'dStatMin', 'dStatMax', u);
+        else             buildTable('mTableArea', 'mStatMin', 'mStatMax', u);
     }
 </script>
 </body>
