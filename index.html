@@ -3,184 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="硅光电池光照度计算器 - 输入灯泡电压自动生成各距离光照度数据表">
     <title>硅光电池光照度计算器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+        :root {
+            --bg: #f5f7fa;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --border2: #cbd5e1;
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
+            --accent2: #ea580c;
+            --accent2-light: #fff7ed;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            font-family: 'Outfit', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100%;
+        }
+        /* ─────────────────────────────────────────
+           DESKTOP: two-column sticky layout
+        ───────────────────────────────────────── */
+        .app {
             display: flex;
-            justify-content: center;
-            padding: 20px 10px;
-            margin: 0;
+            flex-direction: row;
+            height: 100vh;
+            overflow: hidden;
         }
-        .container {
-            background-color: #fff;
-            padding: 25px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            max-width: 600px;
-            width: 100%;
-            box-sizing: border-box;
+        /* ── SIDE PANEL ── */
+        .side {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 24px 18px;
+            overflow-y: auto;
         }
-        h2 {
-            text-align: center;
-            color: #0072BD;
-            margin-top: 5px;
-            margin-bottom: 20px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 22px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
         }
-        .formula-box {
-            background-color: #f8f9fa;
-            border: 1px dashed #0072BD;
-            padding: 12px;
+        .logo-text h1 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .logo-text p {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+        .divider { height: 1px; background: var(--border); }
+        /* Formula */
+        .formula-card {
+            background: var(--accent-light);
+            border: 1px solid rgba(37,99,235,0.18);
+            border-radius: var(--radius);
+            padding: 14px;
+        }
+        .formula-card .section-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .formula-expr {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent2);
             text-align: center;
-            color: #555;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.9;
         }
-        .formula-box span {
-            font-weight: bold;
-            color: #D95319;
-            font-size: 16px;
+        .formula-frac {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .formula-frac .num, .formula-frac .den {
             display: block;
-            margin: 8px 0;
+            font-size: 13px;
         }
-        .input-group {
-            margin-bottom: 15px;
+        .formula-frac .bar {
+            display: block;
+            height: 1.5px;
+            background: var(--accent2);
+            margin: 2px 0;
+        }
+        .formula-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 8px;
+        }
+        /* Input */
+        .input-card { display: flex; flex-direction: column; gap: 10px; }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .input-wrap { position: relative; }
+        .input-wrap input {
+            width: 100%;
+            padding: 13px 46px 13px 14px;
+            background: var(--white);
+            border: 1.5px solid var(--border2);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 22px;
+            font-family: 'Outfit', monospace;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            box-shadow: var(--shadow-sm);
+        }
+        .input-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
+        .input-unit {
+            position: absolute;
+            right: 13px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px; font-weight: 600;
+            color: var(--text-muted);
+        }
+        .hint { font-size: 11px; color: var(--text-muted); }
+        /* Stats */
+        .stats {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .stat-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .stat-box .sv { font-size: 17px; font-weight: 700; color: var(--accent); }
+        .stat-box.alt .sv { color: var(--accent2); }
+        .stat-box .sk { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+        /* ── MAIN CONTENT ── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-header {
+            padding: 14px 22px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
+            flex-shrink: 0;
         }
-        .input-group label {
-            font-weight: bold;
-            color: #555;
-            width: 45%;
+        .main-header h2 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
         }
-        .input-group input {
-            width: 50%;
-            padding: 12px 10px;
-            border: 2px solid #0072BD; 
-            border-radius: 6px;
-            font-size: 16px;
-            background-color: #fff;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
+        .badge {
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
-        .input-group input:placeholder-shown {
-            border: 1px solid #ccc;
-        }
-        hr {
-            border: 0;
-            height: 1px;
-            background: #eee;
-            margin: 20px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px 8px;
-            text-align: center;
-            font-size: 15px;
-        }
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-            position: sticky;
-            top: 0;
-        }
-        .table-container {
-            max-height: 500px;
+        /* ── TABLE SCROLL AREA ── */
+        .table-scroll {
+            flex: 1;
+            overflow-x: auto;
             overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 6px;
+            padding: 22px;
+            background: var(--bg);
         }
-        @media (max-width: 500px) {
-            .input-group {
+        /* Horizontal table: 2 data rows */
+        table.htable {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: max-content;
+            min-width: 100%;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            background: var(--white);
+        }
+        table.htable tr:first-child th { border-radius: 0; }
+        .htable .row-label {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--white);
+            border-right: 2px solid var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding: 0 18px;
+            min-width: 105px;
+            height: 54px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+        .htable tr:last-child .row-label {
+            border-bottom: none;
+            color: var(--accent2);
+            border-right-color: var(--accent2);
+        }
+        .htable .row-label span {
+            display: block;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .htable .data-cell {
+            text-align: center;
+            padding: 0 10px;
+            height: 54px;
+            min-width: 76px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            background: var(--white);
+            transition: background 0.15s;
+            white-space: nowrap;
+        }
+        .htable tr:last-child .data-cell {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+        .htable .data-cell.alt {
+            background: #fafbfd;
+        }
+        .htable tr:last-child .data-cell.alt {
+            background: #eef4ff;
+        }
+        .htable .data-cell:hover {
+            background: #eff6ff !important;
+        }
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 14px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 52px; opacity: 0.35; }
+        .empty-state p { font-size: 15px; }
+        /* ═══════════════════════════════════════
+           MOBILE: stack vertically, top bar
+        ═══════════════════════════════════════ */
+        @media (max-width: 680px) {
+            html, body { overflow: auto; height: auto; }
+            .app {
                 flex-direction: column;
-                align-items: flex-start;
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
             }
-            .input-group label {
+            /* Collapse side into a top bar */
+            .side {
                 width: 100%;
-                margin-bottom: 8px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                flex-direction: column;
+                padding: 14px 14px 12px;
+                gap: 12px;
+                overflow-y: visible;
             }
-            .input-group input {
-                width: 100%;
+            /* Show logo row + input + formula inline */
+            .side-top-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
             }
+            .logo { flex: 1; }
+            .logo-text h1 { font-size: 13px; }
+            .logo-text p { display: none; }
+            /* Input inline */
+            .input-card {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+            }
+            .input-card .section-label { display: none; }
+            .input-card .hint { display: none; }
+            .input-wrap { flex: 1; }
+            .input-wrap input { font-size: 18px; padding: 10px 40px 10px 12px; }
+            /* Formula compact pill */
+            .formula-card {
+                padding: 8px 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .formula-card .section-label { display: none; }
+            .formula-expr {
+                font-size: 12px;
+                line-height: 1.4;
+                text-align: left;
+                white-space: nowrap;
+            }
+            .formula-frac .num,
+            .formula-frac .den { font-size: 11px; }
+            /* Stats row */
+            .stats {
+                margin-top: 0;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .stat-box { padding: 8px; }
+            .stat-box .sv { font-size: 15px; }
+            /* Main becomes scrollable div */
+            .main {
+                overflow: visible;
+            }
+            .main-header {
+                padding: 10px 14px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .main-header h2 { font-size: 12px; }
+            .table-scroll {
+                overflow-x: auto;
+                overflow-y: visible;
+                padding: 12px 14px 20px;
+                min-height: 200px;
+            }
+            /* Taller cells on mobile for finger tap */
+            .htable .data-cell { height: 50px; min-width: 70px; font-size: 13px; }
+            .htable .row-label { height: 50px; min-width: 92px; font-size: 11px; padding: 0 12px; }
+            .divider { display: none; }
         }
+        /* Very small (< 360px) */
+        @media (max-width: 360px) {
+            .formula-card { display: none; }
+            .htable .data-cell { min-width: 62px; font-size: 12px; }
+            .htable .row-label { min-width: 82px; }
+        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>💡 硅光电池光照度计算器<br><span style="font-size:14px; color:#888;"></span></h2>
-    
-    <div class="formula-box">
-        综合校准拟合公式：
-        <span>E = 0.3765 × U² / (d + 0.0612)² + 59.08</span>
-        <div style="font-size:12px; color:#888; margin-top:5px;">(U电压V，d距离m)</div>
-    </div>
-
-    <div class="input-group">
-        <label for="lampU">灯泡电压 U (V):</label>
-        <input type="number" id="lampU" placeholder="适用范围 4~12V" step="any" inputmode="decimal" oninput="generateTable()">
-    </div>
-
-    <hr>
-
-    <h3 style="text-align: center; color: #555; margin-bottom: 15px;">📊 实验表格数据 (步长 0.01m)</h3>
-    
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>距离 d (m)</th>
-                    <th>光照度 E (Lx)</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="2" style="color:#999; padding: 20px;">请在上方输入灯泡电压，表格将瞬间自动生成</td></tr>
-            </tbody>
-        </table>
+<div class="app">
+    <!-- ── SIDE / TOP BAR ── -->
+    <aside class="side">
+        <!-- Mobile: logo + input in one row -->
+        <div class="side-top-row">
+            <div class="logo">
+                <div class="logo-icon">💡</div>
+                <div class="logo-text">
+                    <h1>硅光电池<br>光照度计算器</h1>
+                    <p>Silicon Photodiode E-Meter</p>
+                </div>
+            </div>
+            <!-- On mobile this input sits beside logo -->
+            <div class="input-card" id="inputCardMobile" style="display:none;">
+                <div class="input-wrap">
+                    <input type="number" id="lampU2" placeholder="4~12 V"
+                           step="any" inputmode="decimal" autocomplete="off"
+                           oninput="syncInput(this)">
+                    <span class="input-unit">V</span>
+                </div>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="formula-card">
+            <div class="section-label">📐 综合校准公式</div>
+            <div class="formula-expr">
+                E = 0.3765 × U² / (d + 0.0612)² + 59.08
+            </div>
+            <div class="formula-note">U 电压（V）　·　d 距离（m）</div>
+        </div>
+        <!-- Desktop input -->
+        <div class="input-card" id="inputCardDesktop">
+            <div class="section-label">⚡ 灯泡电压</div>
+            <div class="input-wrap">
+                <input type="number" id="lampU" placeholder="4 ~ 12"
+                       step="any" inputmode="decimal" autocomplete="off"
+                       oninput="syncInput(this)">
+                <span class="input-unit">V</span>
+            </div>
+            <div class="hint">适用范围 4 V — 12 V</div>
+        </div>
+        <div class="divider"></div>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="sv" id="statMin">—</div>
+                <div class="sk">最小光照度 (Lx)</div>
+            </div>
+            <div class="stat-box alt">
+                <div class="sv" id="statMax">—</div>
+                <div class="sk">最大光照度 (Lx)</div>
+            </div>
+        </div>
+    </aside>
+    <!-- ── MAIN ── -->
+    <div class="main">
+        <header class="main-header">
+            <h2>📊 实验数据表　&nbsp;步长 0.01 m　d = 0.05 → 0.25 m</h2>
+            <span class="badge">21 组数据</span>
+        </header>
+        <div class="table-scroll" id="tableWrap">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🔦</div>
+                <p>请输入灯泡电压</p>
+                <p style="font-size:13px; opacity:.6;">表格将横向自动生成</p>
+            </div>
+        </div>
     </div>
 </div>
-
 <script>
-    // 纯净的物理核心引擎
+    // ─── Responsive: show/hide inputs depending on screen width ───
+    function applyLayout() {
+        const isMobile = window.innerWidth <= 680;
+        document.getElementById('inputCardMobile').style.display = isMobile ? 'flex' : 'none';
+        document.getElementById('inputCardDesktop').style.display = isMobile ? 'none' : 'flex';
+    }
+    applyLayout();
+    window.addEventListener('resize', applyLayout);
+    // Keep both inputs in sync
+    function syncInput(src) {
+        const val = src.value;
+        document.getElementById('lampU').value = val;
+        document.getElementById('lampU2').value = val;
+        generateTable(val);
+    }
     function calculateE(u, d) {
-        if (d < 0) return 0;
         return 0.3765 * (u * u) / Math.pow((d + 0.0612), 2) + 59.08;
     }
-
-    // 自动化表单生成逻辑
-    function generateTable() {
-        const uVal = parseFloat(document.getElementById('lampU').value);
-        const tbody = document.getElementById('tableBody');
-        
+    function generateTable(rawVal) {
+        const uVal = parseFloat(rawVal);
+        const wrap  = document.getElementById('tableWrap');
+        const statMin = document.getElementById('statMin');
+        const statMax = document.getElementById('statMax');
         if (isNaN(uVal)) {
-            tbody.innerHTML = '<tr><td colspan="2" style="color:#999; padding: 20px;">请在上方输入灯泡电压，表格将瞬间自动生成</td></tr>';
+            wrap.innerHTML = '';
+            wrap.appendChild(document.getElementById('emptyState'));
+            statMin.textContent = '—';
+            statMax.textContent = '—';
             return;
         }
-
-        tbody.innerHTML = ""; 
-
-        // 自动循环输出 21 组数据
+        // Compute 21 data points
+        const cols = [];
         for (let i = 5; i <= 25; i++) {
-            let d = i / 100;
-            const ec = calculateE(uVal, d);
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${d.toFixed(2)}</td><td style="font-weight:bold; color:#0072BD;">${ec.toFixed(2)}</td>`;
-            tbody.appendChild(row);
+            const d = i / 100;
+            cols.push({ d: d.toFixed(2), e: calculateE(uVal, d).toFixed(2) });
         }
+        // Stats
+        const eVals = cols.map(c => parseFloat(c.e));
+        statMin.textContent = Math.min(...eVals).toFixed(1);
+        statMax.textContent = Math.max(...eVals).toFixed(1);
+        // Build horizontal table (2 rows × 21 data cols + 1 label col)
+        const tbl = document.createElement('table');
+        tbl.className = 'htable';
+        // Row 1 – distances
+        const tr1 = document.createElement('tr');
+        const lbl1 = document.createElement('th');
+        lbl1.className = 'row-label';
+        lbl1.innerHTML = '距离 d<span>单位 m</span>';
+        tr1.appendChild(lbl1);
+        cols.forEach((c, i) => {
+            const td = document.createElement('td');
+            td.className = 'data-cell' + (i % 2 === 1 ? ' alt' : '');
+            td.textContent = c.d;
+            tr1.appendChild(td);
+        });
+        tbl.appendChild(tr1);
+        // Row 2 – illuminance
+        const tr2 = document.createElement('tr');
+        const lbl2 = document.createElement('th');
+        lbl2.className = 'row-label';
+        lbl2.innerHTML = '光照度 E<span>单位 Lx</span>';
+        tr2.appendChild(lbl2);
+        cols.forEach((c, i) => {
+            const td = document.createElement('td');
+            td.className = 'data-cell' + (i % 2 === 1 ? ' alt' : '');
+            td.textContent = c.e;
+            tr2.appendChild(td);
+        });
+        tbl.appendChild(tr2);
+        wrap.innerHTML = '';
+        wrap.appendChild(tbl);
     }
 </script>
-
 </body>
 </html>
