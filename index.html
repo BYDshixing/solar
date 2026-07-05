@@ -5,41 +5,200 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="硅光电池光照度计算器 - 输入灯泡电压自动生成各距离光照度数据表">
     <title>硅光电池光照度计算器</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --bg: #f5f7fa;
+            --bg: #f0f4f8;
             --white: #ffffff;
             --border: #e2e8f0;
             --border2: #cbd5e1;
             --accent: #2563eb;
             --accent-light: #eff6ff;
             --accent2: #ea580c;
-            --accent2-light: #fff7ed;
             --text: #1e293b;
             --text-muted: #64748b;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
             --radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             font-family: 'Outfit', 'Microsoft YaHei', sans-serif;
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
             background: var(--bg);
             color: var(--text);
-            min-height: 100%;
         }
-        /* ─────────────────────────────────────────
-           DESKTOP: two-column sticky layout
-        ───────────────────────────────────────── */
-        .app {
-            display: flex;
-            flex-direction: row;
-            height: 100vh;
+        /* ══════════════════════════════════════════════
+           SECTION VISIBILITY RULES
+           - desktop (.desktop-app): shown ≥ 768px always
+           - portrait guard:         shown < 768px portrait
+           - mobile app wrap:        shown < 768px landscape
+        ══════════════════════════════════════════════ */
+        /* Desktop default */
+        .desktop-app   { display: flex; }
+        .rotate-guard  { display: none; }
+        .mobile-wrap   { display: none; }
+        /* Mobile: hide desktop */
+        @media (max-width: 767px) {
+            .desktop-app { display: none !important; }
+        }
+        /* Mobile portrait: show rotate guard */
+        @media (max-width: 767px) and (orientation: portrait) {
+            .rotate-guard { display: flex; }
+            .mobile-wrap  { display: none; }
+        }
+        /* Mobile landscape: show rotated app */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .rotate-guard { display: none; }
+            .mobile-wrap  { display: block; }
+        }
+        /* ══════════════════════════════════════════════
+           PORTRAIT ROTATE GUARD
+        ══════════════════════════════════════════════ */
+        .rotate-guard {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0f1e;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            color: #e2e8f0;
+        }
+        .rotate-guard .phone-icon {
+            font-size: 64px;
+            animation: tilt 1.6s ease-in-out infinite alternate;
+        }
+        @keyframes tilt {
+            0%   { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+        .rotate-guard h2 { font-size: 20px; font-weight: 700; color: #60a5fa; }
+        .rotate-guard p  { font-size: 13px; color: #64748b; }
+        /* ══════════════════════════════════════════════
+           MOBILE LANDSCAPE APP  (180° flipped)
+        ══════════════════════════════════════════════ */
+        .mobile-wrap {
+            position: fixed; inset: 0;
+            width: 100vw; height: 100vh;
+            transform: rotate(180deg);
+            transform-origin: center center;
             overflow: hidden;
         }
-        /* ── SIDE PANEL ── */
-        .side {
+        .mobile-app {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Mobile topbar */
+        .m-topbar {
+            flex-shrink: 0;
+            height: 50px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .m-logo {
+            display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+        }
+        .m-logo .icon {
+            width: 30px; height: 30px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+        }
+        .m-logo .title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+        .m-logo .sub   { font-size: 9px; color: var(--text-muted); }
+        .m-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+        .m-formula {
+            background: var(--accent-light);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 16px;
+            padding: 3px 10px;
+            font-size: 10px; font-weight: 600;
+            color: #1d4ed8;
+            white-space: nowrap;
+        }
+        .m-input-group {
+            display: flex; align-items: center; gap: 6px;
+            margin-left: auto; flex-shrink: 0;
+        }
+        .m-input-group label { font-size: 10px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+        .m-input-wrap { position: relative; }
+        .m-input-wrap input {
+            width: 90px;
+            padding: 5px 26px 5px 9px;
+            border: 1.5px solid var(--border2);
+            border-radius: 8px;
+            font-size: 17px; font-weight: 700;
+            font-family: 'Outfit', monospace;
+            color: var(--text);
+            background: var(--white);
+            outline: none;
+            -webkit-appearance: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .m-input-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
+        .m-input-unit {
+            position: absolute; right: 7px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px; font-weight: 600; color: var(--text-muted);
+            pointer-events: none;
+        }
+        .m-stats { display: flex; gap: 5px; flex-shrink: 0; }
+        .m-stat {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 2px 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .m-stat .sv { font-size: 12px; font-weight: 700; color: var(--accent); }
+        .m-stat.alt .sv { color: var(--accent2); }
+        .m-stat .sk { font-size: 8px; color: var(--text-muted); }
+        /* Mobile table area */
+        .m-table-area {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+        }
+        /* Mobile bottom bar */
+        .m-bottombar {
+            flex-shrink: 0; height: 22px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center;
+            padding: 0 12px; gap: 14px;
+        }
+        .m-bottombar span { font-size: 9px; color: var(--text-muted); }
+        .m-bottombar .hl { color: var(--accent); font-weight: 600; }
+        /* ══════════════════════════════════════════════
+           DESKTOP APP
+        ══════════════════════════════════════════════ */
+        .desktop-app {
+            min-height: 100vh;
+            flex-direction: row;
+            overflow: hidden;
+            height: 100vh;
+        }
+        /* Desktop sidebar */
+        .d-side {
             width: 260px;
             flex-shrink: 0;
             background: var(--white);
@@ -50,341 +209,164 @@
             padding: 24px 18px;
             overflow-y: auto;
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-icon {
+        .d-logo { display: flex; align-items: center; gap: 10px; }
+        .d-logo .icon {
             width: 42px; height: 42px;
             background: linear-gradient(135deg, #2563eb, #7c3aed);
             border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
+            font-size: 22px; flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(37,99,235,0.25);
         }
-        .logo-text h1 {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1.3;
-        }
-        .logo-text p {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-        .divider { height: 1px; background: var(--border); }
-        /* Formula */
-        .formula-card {
+        .d-logo .title  { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .d-logo .sub    { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+        .d-divider { height: 1px; background: var(--border); }
+        .d-formula-card {
             background: var(--accent-light);
             border: 1px solid rgba(37,99,235,0.18);
             border-radius: var(--radius);
             padding: 14px;
         }
-        .formula-card .section-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--accent);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 10px;
+        .d-section-label {
+            font-size: 10px; font-weight: 700;
+            color: var(--accent); letter-spacing: 0.08em;
+            text-transform: uppercase; margin-bottom: 10px;
         }
-        .formula-expr {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--accent2);
-            text-align: center;
-            line-height: 1.9;
+        .d-formula-expr {
+            font-size: 13px; font-weight: 700;
+            color: var(--accent2); text-align: center; line-height: 1.9;
         }
-        .formula-frac {
-            display: inline-block;
-            text-align: center;
-            vertical-align: middle;
+        .d-formula-note {
+            font-size: 11px; color: var(--text-muted);
+            text-align: center; margin-top: 8px;
         }
-        .formula-frac .num, .formula-frac .den {
-            display: block;
-            font-size: 13px;
-        }
-        .formula-frac .bar {
-            display: block;
-            height: 1.5px;
-            background: var(--accent2);
-            margin: 2px 0;
-        }
-        .formula-note {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 8px;
-        }
-        /* Input */
-        .input-card { display: flex; flex-direction: column; gap: 10px; }
-        .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-        .input-wrap { position: relative; }
-        .input-wrap input {
+        .d-input-card { display: flex; flex-direction: column; gap: 10px; }
+        .d-input-wrap { position: relative; }
+        .d-input-wrap input {
             width: 100%;
             padding: 13px 46px 13px 14px;
             background: var(--white);
             border: 1.5px solid var(--border2);
             border-radius: 10px;
             color: var(--text);
-            font-size: 22px;
+            font-size: 22px; font-weight: 700;
             font-family: 'Outfit', monospace;
-            font-weight: 700;
-            outline: none;
+            outline: none; -webkit-appearance: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            -webkit-appearance: none;
             box-shadow: var(--shadow-sm);
         }
-        .input-wrap input:focus {
+        .d-input-wrap input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
         }
-        .input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
-        .input-unit {
-            position: absolute;
-            right: 13px; top: 50%;
+        .d-input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
+        .d-input-unit {
+            position: absolute; right: 13px; top: 50%;
             transform: translateY(-50%);
             font-size: 14px; font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-muted); pointer-events: none;
         }
-        .hint { font-size: 11px; color: var(--text-muted); }
-        /* Stats */
-        .stats {
+        .d-hint { font-size: 11px; color: var(--text-muted); }
+        .d-stats {
             margin-top: auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
         }
-        .stat-box {
+        .d-stat-box {
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 12px 8px;
-            text-align: center;
+            padding: 12px 8px; text-align: center;
         }
-        .stat-box .sv { font-size: 17px; font-weight: 700; color: var(--accent); }
-        .stat-box.alt .sv { color: var(--accent2); }
-        .stat-box .sk { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-        /* ── MAIN CONTENT ── */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .main-header {
+        .d-stat-box .sv { font-size: 17px; font-weight: 700; color: var(--accent); }
+        .d-stat-box.alt .sv { color: var(--accent2); }
+        .d-stat-box .sk { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+        /* Desktop main */
+        .d-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .d-main-header {
             padding: 14px 22px;
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0;
         }
-        .main-header h2 {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
+        .d-main-header h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); }
         .badge {
             background: var(--accent-light);
             color: var(--accent);
             border: 1px solid rgba(37,99,235,0.2);
             border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 4px 12px; font-size: 12px; font-weight: 600;
         }
-        /* ── TABLE SCROLL AREA ── */
-        .table-scroll {
-            flex: 1;
-            overflow-x: auto;
-            overflow-y: auto;
-            padding: 22px;
-            background: var(--bg);
+        .d-table-scroll {
+            flex: 1; overflow-x: auto; overflow-y: auto;
+            padding: 22px; background: var(--bg);
         }
-        /* Horizontal table: 2 data rows */
+        /* ══════════════════════════════════════════════
+           SHARED: Horizontal 2-row table
+        ══════════════════════════════════════════════ */
         table.htable {
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: separate; border-spacing: 0;
             width: max-content;
-            min-width: 100%;
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
-            background: var(--white);
         }
-        table.htable tr:first-child th { border-radius: 0; }
         .htable .row-label {
-            position: sticky;
-            left: 0;
-            z-index: 3;
+            position: sticky; left: 0; z-index: 2;
             background: var(--white);
             border-right: 2px solid var(--accent);
             border-bottom: 1px solid var(--border);
-            padding: 0 18px;
-            min-width: 105px;
-            height: 54px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 0 14px;
+            font-size: 11px; font-weight: 700;
             color: var(--accent);
             white-space: nowrap;
+            vertical-align: middle;
         }
         .htable tr:last-child .row-label {
             border-bottom: none;
             color: var(--accent2);
             border-right-color: var(--accent2);
+            background: #fffbf7;
         }
         .htable .row-label span {
-            display: block;
-            font-size: 10px;
-            font-weight: 400;
-            color: var(--text-muted);
-            margin-top: 2px;
+            display: block; font-size: 9px; font-weight: 400;
+            color: var(--text-muted); margin-top: 1px;
         }
         .htable .data-cell {
-            text-align: center;
-            padding: 0 10px;
-            height: 54px;
-            min-width: 76px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
+            text-align: center; padding: 0 6px;
+            font-weight: 500; color: var(--text);
             border-bottom: 1px solid var(--border);
-            border-right: 1px solid var(--border);
+            border-right: 1px solid #f1f5f9;
             background: var(--white);
-            transition: background 0.15s;
-            white-space: nowrap;
+            white-space: nowrap; vertical-align: middle;
+            transition: background 0.12s;
         }
+        .htable .data-cell.alt { background: #f8faff; }
         .htable tr:last-child .data-cell {
             border-bottom: none;
             font-weight: 700;
-            font-size: 15px;
-            color: var(--accent);
+            color: #1d4ed8;
             background: var(--accent-light);
         }
-        .htable .data-cell.alt {
-            background: #fafbfd;
-        }
-        .htable tr:last-child .data-cell.alt {
-            background: #eef4ff;
-        }
-        .htable .data-cell:hover {
-            background: #eff6ff !important;
-        }
+        .htable tr:last-child .data-cell.alt { background: #dbeafe; }
+        .htable .data-cell:hover { background: #e0edff !important; }
+        /* Desktop table: bigger cells */
+        .d-table-scroll .htable .row-label { min-width: 100px; height: 54px; font-size: 12px; padding: 0 16px; }
+        .d-table-scroll .htable .data-cell { min-width: 76px; height: 54px; font-size: 14px; }
+        /* Mobile table: compact cells */
+        .m-table-area .htable .row-label { min-width: 80px; height: 36px; font-size: 10px; padding: 0 10px; }
+        .m-table-area .htable .data-cell { min-width: 56px; height: 36px; font-size: 11px; padding: 0 5px; }
+        .m-table-area .htable tr:last-child .data-cell { font-size: 12px; }
         /* Empty state */
         .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            gap: 14px;
-            color: var(--text-muted);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%; gap: 12px; color: var(--text-muted);
         }
-        .empty-icon { font-size: 52px; opacity: 0.35; }
-        .empty-state p { font-size: 15px; }
-        /* ═══════════════════════════════════════
-           MOBILE: stack vertically, top bar
-        ═══════════════════════════════════════ */
-        @media (max-width: 680px) {
-            html, body { overflow: auto; height: auto; }
-            .app {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-                overflow: visible;
-            }
-            /* Collapse side into a top bar */
-            .side {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                flex-direction: column;
-                padding: 14px 14px 12px;
-                gap: 12px;
-                overflow-y: visible;
-            }
-            /* Show logo row + input + formula inline */
-            .side-top-row {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            .logo { flex: 1; }
-            .logo-text h1 { font-size: 13px; }
-            .logo-text p { display: none; }
-            /* Input inline */
-            .input-card {
-                flex-direction: row;
-                align-items: center;
-                gap: 8px;
-            }
-            .input-card .section-label { display: none; }
-            .input-card .hint { display: none; }
-            .input-wrap { flex: 1; }
-            .input-wrap input { font-size: 18px; padding: 10px 40px 10px 12px; }
-            /* Formula compact pill */
-            .formula-card {
-                padding: 8px 12px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .formula-card .section-label { display: none; }
-            .formula-expr {
-                font-size: 12px;
-                line-height: 1.4;
-                text-align: left;
-                white-space: nowrap;
-            }
-            .formula-frac .num,
-            .formula-frac .den { font-size: 11px; }
-            /* Stats row */
-            .stats {
-                margin-top: 0;
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .stat-box { padding: 8px; }
-            .stat-box .sv { font-size: 15px; }
-            /* Main becomes scrollable div */
-            .main {
-                overflow: visible;
-            }
-            .main-header {
-                padding: 10px 14px;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-            .main-header h2 { font-size: 12px; }
-            .table-scroll {
-                overflow-x: auto;
-                overflow-y: visible;
-                padding: 12px 14px 20px;
-                min-height: 200px;
-            }
-            /* Taller cells on mobile for finger tap */
-            .htable .data-cell { height: 50px; min-width: 70px; font-size: 13px; }
-            .htable .row-label { height: 50px; min-width: 92px; font-size: 11px; padding: 0 12px; }
-            .divider { display: none; }
-        }
-        /* Very small (< 360px) */
-        @media (max-width: 360px) {
-            .formula-card { display: none; }
-            .htable .data-cell { min-width: 62px; font-size: 12px; }
-            .htable .row-label { min-width: 82px; }
-        }
+        .empty-state .ei { font-size: 44px; opacity: 0.35; }
+        .empty-state p { font-size: 14px; }
         /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -392,119 +374,141 @@
     </style>
 </head>
 <body>
-<div class="app">
-    <!-- ── SIDE / TOP BAR ── -->
-    <aside class="side">
-        <!-- Mobile: logo + input in one row -->
-        <div class="side-top-row">
-            <div class="logo">
-                <div class="logo-icon">💡</div>
-                <div class="logo-text">
-                    <h1>硅光电池<br>光照度计算器</h1>
-                    <p>Silicon Photodiode E-Meter</p>
+<!-- ═══ 1. PORTRAIT GUARD (mobile only) ═══ -->
+<div class="rotate-guard">
+    <div class="phone-icon">📱</div>
+    <h2>请横屏使用</h2>
+    <p>将手机旋转至横屏方向以加载实验数据表</p>
+</div>
+<!-- ═══ 2. MOBILE LANDSCAPE APP (rotated 180°) ═══ -->
+<div class="mobile-wrap">
+    <div class="mobile-app">
+        <div class="m-topbar">
+            <div class="m-logo">
+                <div class="icon">💡</div>
+                <div>
+                    <div class="title">硅光电池光照度计算器</div>
+                    <div class="sub">E = 0.3765·U² / (d+0.0612)² + 59.08</div>
                 </div>
             </div>
-            <!-- On mobile this input sits beside logo -->
-            <div class="input-card" id="inputCardMobile" style="display:none;">
-                <div class="input-wrap">
-                    <input type="number" id="lampU2" placeholder="4~12 V"
+            <div class="m-sep"></div>
+            <div class="m-formula">U (V) · d (m) → E (Lx)</div>
+            <div class="m-input-group">
+                <label for="lampU_m">灯泡电压</label>
+                <div class="m-input-wrap">
+                    <input type="number" id="lampU_m" placeholder="4~12"
                            step="any" inputmode="decimal" autocomplete="off"
-                           oninput="syncInput(this)">
-                    <span class="input-unit">V</span>
+                           oninput="onInput('m', this.value)">
+                    <span class="m-input-unit">V</span>
+                </div>
+            </div>
+            <div class="m-stats">
+                <div class="m-stat">
+                    <div class="sv" id="mStatMin">—</div>
+                    <div class="sk">最小 Lx</div>
+                </div>
+                <div class="m-stat alt">
+                    <div class="sv" id="mStatMax">—</div>
+                    <div class="sk">最大 Lx</div>
                 </div>
             </div>
         </div>
-        <div class="divider"></div>
-        <div class="formula-card">
-            <div class="section-label">📐 综合校准公式</div>
-            <div class="formula-expr">
-                E = 0.3765 × U² / (d + 0.0612)² + 59.08
+        <div class="m-table-area" id="mTableArea">
+            <div class="empty-state">
+                <div class="ei">🔦</div>
+                <p>输入灯泡电压，表格横向自动生成</p>
             </div>
-            <div class="formula-note">U 电压（V）　·　d 距离（m）</div>
         </div>
-        <!-- Desktop input -->
-        <div class="input-card" id="inputCardDesktop">
-            <div class="section-label">⚡ 灯泡电压</div>
-            <div class="input-wrap">
-                <input type="number" id="lampU" placeholder="4 ~ 12"
+        <div class="m-bottombar">
+            <span>步长 <span class="hl">0.01 m</span></span>
+            <span>d = <span class="hl">0.05 → 0.25 m</span></span>
+            <span>共 <span class="hl">21</span> 组</span>
+            <span style="margin-left:auto; font-size:9px; color:#94a3b8;">← 左右滑动查看全部 →</span>
+        </div>
+    </div>
+</div>
+<!-- ═══ 3. DESKTOP APP (normal, always upright) ═══ -->
+<div class="desktop-app">
+    <aside class="d-side">
+        <div class="d-logo">
+            <div class="icon">💡</div>
+            <div>
+                <div class="title">硅光电池<br>光照度计算器</div>
+                <div class="sub">Silicon Photodiode E-Meter</div>
+            </div>
+        </div>
+        <div class="d-divider"></div>
+        <div class="d-formula-card">
+            <div class="d-section-label">📐 综合校准公式</div>
+            <div class="d-formula-expr">
+                E = 0.3765 × U²<br>
+                ──────────────<br>
+                (d + 0.0612)²<br>
+                + 59.08
+            </div>
+            <div class="d-formula-note">U 电压（V）　·　d 距离（m）</div>
+        </div>
+        <div class="d-input-card">
+            <div class="d-section-label">⚡ 灯泡电压</div>
+            <div class="d-input-wrap">
+                <input type="number" id="lampU_d" placeholder="4 ~ 12"
                        step="any" inputmode="decimal" autocomplete="off"
-                       oninput="syncInput(this)">
-                <span class="input-unit">V</span>
+                       oninput="onInput('d', this.value)">
+                <span class="d-input-unit">V</span>
             </div>
-            <div class="hint">适用范围 4 V — 12 V</div>
+            <div class="d-hint">适用范围 4 V — 12 V</div>
         </div>
-        <div class="divider"></div>
-        <div class="stats">
-            <div class="stat-box">
-                <div class="sv" id="statMin">—</div>
+        <div class="d-divider"></div>
+        <div class="d-stats">
+            <div class="d-stat-box">
+                <div class="sv" id="dStatMin">—</div>
                 <div class="sk">最小光照度 (Lx)</div>
             </div>
-            <div class="stat-box alt">
-                <div class="sv" id="statMax">—</div>
+            <div class="d-stat-box alt">
+                <div class="sv" id="dStatMax">—</div>
                 <div class="sk">最大光照度 (Lx)</div>
             </div>
         </div>
     </aside>
-    <!-- ── MAIN ── -->
-    <div class="main">
-        <header class="main-header">
-            <h2>📊 实验数据表　&nbsp;步长 0.01 m　d = 0.05 → 0.25 m</h2>
+    <div class="d-main">
+        <header class="d-main-header">
+            <h2>📊 实验数据表　步长 0.01 m　·　d = 0.05 m → 0.25 m</h2>
             <span class="badge">21 组数据</span>
         </header>
-        <div class="table-scroll" id="tableWrap">
-            <div class="empty-state" id="emptyState">
-                <div class="empty-icon">🔦</div>
-                <p>请输入灯泡电压</p>
+        <div class="d-table-scroll" id="dTableArea">
+            <div class="empty-state">
+                <div class="ei">🔦</div>
+                <p>请在左侧输入灯泡电压</p>
                 <p style="font-size:13px; opacity:.6;">表格将横向自动生成</p>
             </div>
         </div>
     </div>
 </div>
 <script>
-    // ─── Responsive: show/hide inputs depending on screen width ───
-    function applyLayout() {
-        const isMobile = window.innerWidth <= 680;
-        document.getElementById('inputCardMobile').style.display = isMobile ? 'flex' : 'none';
-        document.getElementById('inputCardDesktop').style.display = isMobile ? 'none' : 'flex';
+    function calcE(u, d) {
+        return 0.3765 * u * u / Math.pow(d + 0.0612, 2) + 59.08;
     }
-    applyLayout();
-    window.addEventListener('resize', applyLayout);
-    // Keep both inputs in sync
-    function syncInput(src) {
-        const val = src.value;
-        document.getElementById('lampU').value = val;
-        document.getElementById('lampU2').value = val;
-        generateTable(val);
-    }
-    function calculateE(u, d) {
-        return 0.3765 * (u * u) / Math.pow((d + 0.0612), 2) + 59.08;
-    }
-    function generateTable(rawVal) {
-        const uVal = parseFloat(rawVal);
-        const wrap  = document.getElementById('tableWrap');
-        const statMin = document.getElementById('statMin');
-        const statMax = document.getElementById('statMax');
+    function buildTable(areaId, minId, maxId, uVal) {
+        const area = document.getElementById(areaId);
+        const statMin = document.getElementById(minId);
+        const statMax = document.getElementById(maxId);
         if (isNaN(uVal)) {
-            wrap.innerHTML = '';
-            wrap.appendChild(document.getElementById('emptyState'));
+            area.innerHTML = '<div class="empty-state"><div class="ei">🔦</div><p>请输入灯泡电压</p></div>';
             statMin.textContent = '—';
             statMax.textContent = '—';
             return;
         }
-        // Compute 21 data points
         const cols = [];
         for (let i = 5; i <= 25; i++) {
             const d = i / 100;
-            cols.push({ d: d.toFixed(2), e: calculateE(uVal, d).toFixed(2) });
+            cols.push({ d: d.toFixed(2), e: calcE(uVal, d).toFixed(2) });
         }
-        // Stats
         const eVals = cols.map(c => parseFloat(c.e));
         statMin.textContent = Math.min(...eVals).toFixed(1);
         statMax.textContent = Math.max(...eVals).toFixed(1);
-        // Build horizontal table (2 rows × 21 data cols + 1 label col)
         const tbl = document.createElement('table');
         tbl.className = 'htable';
-        // Row 1 – distances
+        // Row 1: d
         const tr1 = document.createElement('tr');
         const lbl1 = document.createElement('th');
         lbl1.className = 'row-label';
@@ -512,12 +516,12 @@
         tr1.appendChild(lbl1);
         cols.forEach((c, i) => {
             const td = document.createElement('td');
-            td.className = 'data-cell' + (i % 2 === 1 ? ' alt' : '');
+            td.className = 'data-cell' + (i % 2 ? ' alt' : '');
             td.textContent = c.d;
             tr1.appendChild(td);
         });
         tbl.appendChild(tr1);
-        // Row 2 – illuminance
+        // Row 2: E
         const tr2 = document.createElement('tr');
         const lbl2 = document.createElement('th');
         lbl2.className = 'row-label';
@@ -525,13 +529,21 @@
         tr2.appendChild(lbl2);
         cols.forEach((c, i) => {
             const td = document.createElement('td');
-            td.className = 'data-cell' + (i % 2 === 1 ? ' alt' : '');
+            td.className = 'data-cell' + (i % 2 ? ' alt' : '');
             td.textContent = c.e;
             tr2.appendChild(td);
         });
         tbl.appendChild(tr2);
-        wrap.innerHTML = '';
-        wrap.appendChild(tbl);
+        area.innerHTML = '';
+        area.appendChild(tbl);
+    }
+    function onInput(src, val) {
+        const u = parseFloat(val);
+        if (src === 'd') {
+            buildTable('dTableArea', 'dStatMin', 'dStatMax', u);
+        } else {
+            buildTable('mTableArea', 'mStatMin', 'mStatMax', u);
+        }
     }
 </script>
 </body>
