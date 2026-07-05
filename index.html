@@ -70,63 +70,82 @@
             padding: 12px;
             gap: 12px;
         }
-        /* ══ 新移动端布局：顶栏 + 全宽表格 ══
-           横屏角度：顶栏在左上角，表格占满剩余 */
+        /* ══ 手机横屏布局：左侧介绍 + 右侧控制 ══ */
+        /* 恢复 flex-direction: row，居中方式重写 */
         .mobile-app {
-            flex-direction: column !important;  /* 改为纵向：顶栏 + 表格 */
-            padding: 8px !important;
-            gap: 8px !important;
+            flex-direction: row !important;
+            padding: 10px !important;
+            gap: 10px !important;
         }
-        /* 紧凑顶栏（横屏左上角） */
-        .m-topbar {
+        /* ── 左侧：品牌介绍（横屏左上角） ── */
+        .m-left {
+            width: 28%;
             flex-shrink: 0;
-            height: 48px;
-            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            padding: 4px 0;
+        }
+        .m-app-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
             border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 6px 18px rgba(79,124,249,0.35);
+            flex-shrink: 0;
+        }
+        .m-app-title {
+            font-size: 14px; font-weight: 800;
+            color: var(--text); line-height: 1.3;
+        }
+        .m-app-formula {
+            background: var(--accent-lt);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 10px; font-weight: 700;
+            color: var(--accent); line-height: 1.7;
+        }
+        /* ── 右侧：控制区 + 表格 ── */
+        .m-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+            min-width: 0;
+        }
+        /* 控制行：输入框 + 统计芯片 */
+        .m-ctrl-row {
+            flex-shrink: 0;
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        /* 输入卡 */
+        .m-input-card {
+            background: var(--white);
+            border-radius: 12px;
             box-shadow: var(--shadow-card);
+            padding: 6px 12px;
             display: flex;
             align-items: center;
-            padding: 0 12px;
-            gap: 10px;
+            gap: 8px;
+            flex: 1;
         }
-        /* 左侧：图标 + 标题 */
-        .m-brand {
-            display: flex; align-items: center; gap: 7px;
-            flex-shrink: 0;
+        .m-input-label {
+            font-size: 10px; font-weight: 700; color: var(--muted);
+            white-space: nowrap; flex-shrink: 0;
         }
-        .m-brand .icon {
-            width: 30px; height: 30px;
-            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
-            box-shadow: 0 2px 8px rgba(79,124,249,0.35);
-            flex-shrink: 0;
-        }
-        .m-brand .name {
-            font-size: 11px; font-weight: 800;
-            color: var(--text); white-space: nowrap;
-            line-height: 1.2;
-        }
-        .m-brand .sub {
-            font-size: 9px; color: var(--muted); white-space: nowrap;
-        }
-        .m-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-        /* 中间：电压输入 */
-        .m-input-inline {
-            display: flex; align-items: center; gap: 6px;
-            flex-shrink: 0;
-        }
-        .m-input-inline label {
-            font-size: 10px; font-weight: 700; color: var(--muted); white-space: nowrap;
-        }
-        .m-input-wrap { position: relative; }
+        .m-input-wrap { position: relative; flex: 1; }
         .m-input-wrap input {
-            width: 90px;
-            padding: 6px 26px 6px 10px;
+            width: 100%;
+            padding: 5px 28px 5px 10px;
             border: 1.5px solid var(--border);
             border-radius: 9px;
-            font-size: 18px; font-weight: 700;
+            font-size: 20px; font-weight: 700;
             font-family: 'Outfit', monospace;
             color: var(--text);
             background: #f7faff;
@@ -141,31 +160,29 @@
         }
         .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
         .m-input-unit {
-            position: absolute; right: 7px; top: 50%;
+            position: absolute; right: 8px; top: 50%;
             transform: translateY(-50%);
             font-size: 11px; font-weight: 700; color: var(--muted);
             pointer-events: none;
         }
-        /* 右侧：统计小芯片 */
-        .m-chips {
-            display: flex; gap: 6px;
-            margin-left: auto; flex-shrink: 0;
-        }
+        /* 统计芯片 */
         .m-chip {
-            background: #f0f6ff;
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            padding: 3px 10px;
-            text-align: center; white-space: nowrap;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            padding: 5px 12px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            white-space: nowrap; flex-shrink: 0;
         }
-        .m-chip .cv { font-size: 14px; font-weight: 800; color: var(--accent); }
+        .m-chip .cv { font-size: 16px; font-weight: 800; color: var(--accent); line-height: 1; }
         .m-chip.alt .cv { color: var(--accent2); }
-        .m-chip .ck { font-size: 9px; color: var(--muted); }
-        /* 表格卡片：占满剩余空间 */
+        .m-chip .ck { font-size: 8px; color: var(--muted); margin-top: 2px; }
+        /* 表格卡 — 占满剩余高度 */
         .m-table-card {
             flex: 1;
             background: var(--white);
-            border-radius: 14px;
+            border-radius: 12px;
             box-shadow: var(--shadow-card);
             overflow: hidden;
             display: flex;
@@ -173,25 +190,19 @@
             min-height: 0;
         }
         .m-table-header {
-            padding: 6px 12px 5px;
+            padding: 5px 12px 4px;
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 6px;
             flex-shrink: 0;
         }
-        .m-table-header .th-label {
-            font-size: 10px; font-weight: 700; color: var(--accent);
-        }
-        .m-table-header .th-hint {
-            margin-left: auto;
-            font-size: 9px; color: var(--muted);
-        }
+        .m-table-header .th-label { font-size: 10px; font-weight: 700; color: var(--accent); }
+        .m-table-header .th-hint  { margin-left: auto; font-size: 9px; color: var(--muted); }
         .m-table-scroll {
             flex: 1;
             overflow-x: auto;
             overflow-y: hidden;
             display: flex;
-            align-items: center;
-            padding: 4px 8px;
+            align-items: stretch;  /* 让表格拉伸充满高度 */
             -webkit-overflow-scrolling: touch;
             touch-action: pan-x;
             cursor: grab;
@@ -199,7 +210,14 @@
             overscroll-behavior-x: contain;
         }
         .m-table-scroll:active { cursor: grabbing; }
-        .m-table-scroll table { pointer-events: none; }
+        /* 表格充满容器高度 */
+        .m-table-scroll table {
+            pointer-events: none;
+            height: 100%;
+        }
+        .m-table-scroll .htable tr {
+            height: 50%;   /* 2 行各占 50% */
+        }
         /* ── SHARED HTABLE ── */
         table.htable {
             border-collapse: separate; border-spacing: 0;
@@ -348,33 +366,33 @@
     </style>
 </head>
 <body>
-<!-- ═══ 2. MOBILE LANDSCAPE (90° rotated, portrait phone = landscape content) ═══ -->
+<!-- ═══ 2. MOBILE LANDSCAPE (90°, 左侧介绍 + 右侧控制) ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
-    <!-- 紧凑顶栏：横屏角度的左上角 -->
-    <div class="m-topbar">
-        <!-- 品牌区 -->
-        <div class="m-brand">
-            <div class="icon">💡</div>
-            <div>
-                <div class="name">DH-CGOP5小灯泡光强计算器</div>
-                <div class="sub">E = 0.3765·U² / (d+0.0612)² + 59.08</div>
-            </div>
+    <!-- 左侧: 品牌介绍 -->
+    <div class="m-left">
+        <div class="m-app-icon">💡</div>
+        <div class="m-app-title">DH-CGOP5<br>小灯泡光强计算器</div>
+        <div class="m-app-formula">
+            E = 0.3765 × U²<br>
+            &nbsp;&nbsp;&nbsp;/ (d + 0.0612)²<br>
+            &nbsp;&nbsp;&nbsp;+ 59.08
         </div>
-        <div class="m-sep"></div>
-        <!-- 电压输入 -->
-        <div class="m-input-inline">
-            <label for="lampU_m">灯泡电压</label>
-            <div class="m-input-wrap">
-                <input type="number" id="lampU_m"
-                       placeholder="4~12"
-                       step="any" inputmode="decimal" autocomplete="off"
-                       oninput="onInput('m', this.value)">
-                <span class="m-input-unit">V</span>
+    </div>
+    <!-- 右侧: 控制区 + 表格 -->
+    <div class="m-right">
+        <!-- 控制行: 输入框 + 统计芯片 -->
+        <div class="m-ctrl-row">
+            <div class="m-input-card">
+                <span class="m-input-label">灯泡电压</span>
+                <div class="m-input-wrap">
+                    <input type="number" id="lampU_m"
+                           placeholder="4 ~ 12"
+                           step="any" inputmode="decimal" autocomplete="off"
+                           oninput="onInput('m', this.value)">
+                    <span class="m-input-unit">V</span>
+                </div>
             </div>
-        </div>
-        <!-- 统计芯片 -->
-        <div class="m-chips">
             <div class="m-chip">
                 <div class="cv" id="mStatMin">—</div>
                 <div class="ck">最小 Lx</div>
@@ -384,17 +402,17 @@
                 <div class="ck">最大 Lx</div>
             </div>
         </div>
-    </div>
-    <!-- 表格区：占满剩余全部空间 -->
-    <div class="m-table-card">
-        <div class="m-table-header">
-            <span class="th-label">📊 实验数据表</span>
-            <span class="th-hint">← 滑动查看全部 21 组数据 →</span>
-        </div>
-        <div class="m-table-scroll" id="mTableArea">
-            <div class="empty-state">
-                <div class="ei">🔦</div>
-                <p>输入灯泡电压，表格横向自动生成</p>
+        <!-- 表格卡: 占满剩余高度 -->
+        <div class="m-table-card">
+            <div class="m-table-header">
+                <span class="th-label">📊 实验数据表</span>
+                <span class="th-hint">← 滑动查看全部 21 组 →</span>
+            </div>
+            <div class="m-table-scroll" id="mTableArea">
+                <div class="empty-state">
+                    <div class="ei">🔦</div>
+                    <p>输入灯泡电压，表格自动生成</p>
+                </div>
             </div>
         </div>
     </div>
