@@ -32,33 +32,27 @@
         }
         /* ══════════════════════════════
            SECTION VISIBILITY
-           手机始终显示 180° 横屏版，无需等待方向检测
         ══════════════════════════════ */
         .desktop-app { display: flex; }
         .mobile-wrap { display: none; }
-        /* 手机端：直接显示旋转版，隐藏桌面版 */
         @media (max-width: 767px) {
             .desktop-app { display: none !important; }
             .mobile-wrap { display: block !important; }
         }
         /* ══════════════════════════════
-           MOBILE WRAP — 手机竖拿显示横屏内容
-           外层容器剪切视口，内层 90° 旋转充满屏幕
+           MOBILE WRAP
         ══════════════════════════════ */
         .mobile-wrap {
             position: fixed;
             inset: 0;
             overflow: hidden;
-            /* 用实际可视区域尺寸，避免浏览器工具栏影响 */
             width: 100dvw;
             height: 100dvh;
         }
-        /* 内层：JS 动态设置精确像素尺寸，CSS 作为初始占位 */
         .mobile-app {
             position: absolute;
             top: 50%;
             left: 50%;
-            /* 初始值由 JS adjustMobileApp() 覆盖 */
             width: 100vh;
             height: 100vw;
             transform: translate(-50%, -50%) rotate(90deg);
@@ -70,14 +64,12 @@
             padding: 12px;
             gap: 12px;
         }
-        /* ══ 手机横屏布局：左侧介绍 + 右侧控制 ══ */
-        /* 恢复 flex-direction: row，居中方式重写 */
         .mobile-app {
             flex-direction: row !important;
             padding: 10px !important;
             gap: 10px !important;
         }
-        /* ── 左侧：品牌介绍（横屏左上角） ── */
+        /* ── 左侧：品牌介绍 ── */
         .m-left {
             width: 28%;
             flex-shrink: 0;
@@ -117,14 +109,12 @@
             overflow: hidden;
             min-width: 0;
         }
-        /* 控制行：输入框 + 统计芯片 */
         .m-ctrl-row {
             flex-shrink: 0;
             display: flex;
             gap: 8px;
             align-items: stretch;
         }
-        /* 输入卡 */
         .m-input-card {
             background: var(--white);
             border-radius: 12px;
@@ -165,7 +155,6 @@
             font-size: 11px; font-weight: 700; color: var(--muted);
             pointer-events: none;
         }
-        /* 统计芯片 */
         .m-chip {
             background: var(--white);
             border-radius: 12px;
@@ -178,7 +167,7 @@
         .m-chip .cv { font-size: 16px; font-weight: 800; color: var(--accent); line-height: 1; }
         .m-chip.alt .cv { color: var(--accent2); }
         .m-chip .ck { font-size: 8px; color: var(--muted); margin-top: 2px; }
-        /* 表格卡 — 占满剩余高度 */
+        /* 表格卡 */
         .m-table-card {
             flex: 1;
             background: var(--white);
@@ -202,7 +191,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             display: flex;
-            align-items: stretch;  /* 让表格拉伸充满高度 */
+            align-items: stretch;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-x;
             cursor: grab;
@@ -210,13 +199,24 @@
             overscroll-behavior-x: contain;
         }
         .m-table-scroll:active { cursor: grabbing; }
-        /* 表格充满容器高度 */
         .m-table-scroll table {
             pointer-events: none;
             height: 100%;
         }
         .m-table-scroll .htable tr {
-            height: 25%;   /* 4 行各占 25%，充分利用高度 */
+            height: 25%;   /* 4 行各占 25% */
+        }
+        /* 署名栏 */
+        .m-table-footer {
+            flex-shrink: 0;
+            padding: 4px 12px;
+            border-top: 1px solid var(--border);
+            background: var(--accent-lt);
+            text-align: center;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.05em;
         }
         /* ── SHARED HTABLE ── */
         table.htable {
@@ -235,7 +235,6 @@
         }
         .htable tr:last-child .row-label {
             border-bottom: none;
-            color: var(--accent2); border-right-color: var(--accent2);
         }
         .htable .row-label span {
             display: block; font-size: 8px; font-weight: 400;
@@ -251,15 +250,12 @@
         }
         .htable .data-cell.alt { background: #f7faff; }
         .htable tr:last-child .data-cell {
-            border-bottom: none; font-weight: 700;
-            color: var(--accent); background: var(--accent-lt);
+            border-bottom: none;
         }
-        .htable tr:last-child .data-cell.alt { background: #dbeafe; }
         .htable .data-cell:hover { background: #e0edff !important; }
         /* Mobile table sizing */
         .m-table-scroll .htable .row-label { min-width: 72px; }
         .m-table-scroll .htable .data-cell  { min-width: 52px; font-size: 11px; }
-        .m-table-scroll .htable tr:last-child .data-cell { font-size: 12px; }
         /* Desktop table sizing */
         .d-table-scroll .htable .row-label { min-width: 100px; height: 54px; font-size: 12px; padding: 0 16px; }
         .d-table-scroll .htable .data-cell  { min-width: 76px;  height: 54px; font-size: 14px; }
@@ -272,7 +268,7 @@
         .empty-state .ei { font-size: 32px; opacity: 0.35; }
         .empty-state p   { font-size: 12px; }
         /* ══════════════════════════════
-           DESKTOP APP  (unchanged style)
+           DESKTOP APP
         ══════════════════════════════ */
         .desktop-app {
             height: 100vh; overflow: hidden;
@@ -366,7 +362,7 @@
     </style>
 </head>
 <body>
-<!-- ═══ 2. MOBILE LANDSCAPE (90°, 左侧介绍 + 右侧控制) ═══ -->
+<!-- ═══ MOBILE LANDSCAPE ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
     <!-- 左侧: 品牌介绍 -->
@@ -381,7 +377,6 @@
     </div>
     <!-- 右侧: 控制区 + 表格 -->
     <div class="m-right">
-        <!-- 控制行: 输入框 + 统计芯片 -->
         <div class="m-ctrl-row">
             <div class="m-input-card">
                 <span class="m-input-label">灯泡电压</span>
@@ -402,7 +397,6 @@
                 <div class="ck">最大 Lx</div>
             </div>
         </div>
-        <!-- 表格卡: 占满剩余高度 -->
         <div class="m-table-card">
             <div class="m-table-header">
                 <span class="th-label">📊 实验数据表</span>
@@ -414,11 +408,12 @@
                     <p>输入灯泡电压，表格自动生成</p>
                 </div>
             </div>
+            <div class="m-table-footer">上海电机学院团队创作 — 大学物理实验</div>
         </div>
     </div>
 </div>
 </div>
-<!-- ═══ 3. DESKTOP APP ═══ -->
+<!-- ═══ DESKTOP APP ═══ -->
 <div class="desktop-app">
     <aside class="d-side">
         <div class="d-logo">
@@ -477,25 +472,19 @@
     </div>
 </div>
 <script>
-    // ── 精确修正旋转容器尺寸 ──
-    // 用 window.innerWidth/innerHeight 代替 CSS 100vh/100vw
-    // 这两个值是真实可视区域，不包含地址栏、底部导航栏
     function adjustMobileApp() {
         const app = document.querySelector('.mobile-app');
         const wrap = document.querySelector('.mobile-wrap');
         if (!app || !wrap) return;
-        const W = window.innerWidth;   // 竖屏下：较小值
-        const H = window.innerHeight;  // 竖屏下：较大值
-        // 横屏内容的逻辑尺寸 = 把高宽互换
-        app.style.width  = H + 'px';   // 横屏宽 = 竖屏高
-        app.style.height = W + 'px';   // 横屏高 = 竖屏宽
-        // 外层 wrap 跟随真实视口
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        app.style.width  = H + 'px';
+        app.style.height = W + 'px';
         wrap.style.width  = W + 'px';
         wrap.style.height = H + 'px';
     }
     adjustMobileApp();
     window.addEventListener('resize', adjustMobileApp);
-    // visualViewport 在地址栏展开/收起时触发，更精准
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', adjustMobileApp);
     }
@@ -525,7 +514,7 @@
         tbl.className = 'htable';
 
         if (isMobile) {
-            // 移动端：拆分为上下两段，4行充分利用高度
+            // 移动端：拆分为上下两段，4行统一蓝色样式
             const mid = Math.ceil(cols.length / 2);
             const colsTop = cols.slice(0, mid);
             const colsBottom = cols.slice(mid);
@@ -587,7 +576,7 @@
             tbl.appendChild(tr4);
 
         } else {
-            // 桌面端：保持原横向长表格布局
+            // 桌面端：横向长表格
             const tr1  = document.createElement('tr');
             const lbl1 = document.createElement('th');
             lbl1.className = 'row-label';
@@ -623,14 +612,11 @@
         if (src === 'd') buildTable('dTableArea', 'dStatMin', 'dStatMax', u, false);
         else             buildTable('mTableArea', 'mStatMin', 'mStatMax', u, true);
     }
-    // ── 触屏拖拽滚动 ──
-    // 注意：内容整体旋转了 90°，所以手指在屏幕上的垂直方向
-    // 对应内容坐标系的水平方向，需要用 clientY 驱动 scrollLeft
+    // 触屏拖拽滚动
     (function () {
         const el = document.getElementById('mTableArea');
         if (!el) return;
         let startY = 0, startX = 0, startScroll = 0, isDragging = false;
-        // Touch events（手机触屏）
         el.addEventListener('touchstart', e => {
             startY     = e.touches[0].clientY;
             startX     = e.touches[0].clientX;
@@ -639,10 +625,8 @@
         }, { passive: true });
         el.addEventListener('touchmove', e => {
             if (!isDragging) return;
-            // 因为容器旋转 90°，垂直手势 → 水平滚动
             const dy = e.touches[0].clientY - startY;
             const dx = e.touches[0].clientX - startX;
-            // 取绝对值更大的方向作为主方向
             if (Math.abs(dy) > Math.abs(dx)) {
                 el.scrollLeft = startScroll - dy;
             } else {
@@ -650,7 +634,6 @@
             }
         }, { passive: true });
         el.addEventListener('touchend', () => { isDragging = false; }, { passive: true });
-        // Mouse drag（桌面测试用）
         el.addEventListener('mousedown', e => {
             startX      = e.clientX;
             startScroll = el.scrollLeft;
