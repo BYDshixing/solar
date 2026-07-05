@@ -202,7 +202,15 @@
             display: flex;
             align-items: center;
             padding: 6px 10px;
+            /* 触屏滑动支持 */
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+            cursor: grab;
+            scroll-behavior: smooth;
+            overscroll-behavior-x: contain;
         }
+        .m-table-scroll:active { cursor: grabbing; }
+        .m-table-scroll table { pointer-events: none; }
         /* ── SHARED HTABLE ── */
         table.htable {
             border-collapse: separate; border-spacing: 0;
@@ -358,7 +366,7 @@
     <div class="m-left">
         <div class="m-app-icon">💡</div>
         <div class="m-app-title">硅光电池<br>光照度计算器</div>
-        <div class="m-app-desc">by时行</div>
+        <div class="m-app-desc">硅光电池光照度标据害，执造设计高清电光照度计算器。</div>
         <div class="m-formula-badge">
             E = 0.3765 × U²<br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ (d + 0.0612)²<br>
@@ -521,6 +529,50 @@
         if (src === 'd') buildTable('dTableArea', 'dStatMin', 'dStatMax', u);
         else             buildTable('mTableArea', 'mStatMin', 'mStatMax', u);
     }
+    // ── 触屏拖拽滚动 ──
+    // 注意：内容整体旋转了 90°，所以手指在屏幕上的垂直方向
+    // 对应内容坐标系的水平方向，需要用 clientY 驱动 scrollLeft
+    (function () {
+        const el = document.getElementById('mTableArea');
+        if (!el) return;
+        let startY = 0, startX = 0, startScroll = 0, isDragging = false;
+        // Touch events（手机触屏）
+        el.addEventListener('touchstart', e => {
+            startY     = e.touches[0].clientY;
+            startX     = e.touches[0].clientX;
+            startScroll = el.scrollLeft;
+            isDragging  = true;
+        }, { passive: true });
+        el.addEventListener('touchmove', e => {
+            if (!isDragging) return;
+            // 因为容器旋转 90°，垂直手势 → 水平滚动
+            const dy = e.touches[0].clientY - startY;
+            const dx = e.touches[0].clientX - startX;
+            // 取绝对值更大的方向作为主方向
+            if (Math.abs(dy) > Math.abs(dx)) {
+                el.scrollLeft = startScroll - dy;
+            } else {
+                el.scrollLeft = startScroll + dx;
+            }
+        }, { passive: true });
+        el.addEventListener('touchend', () => { isDragging = false; }, { passive: true });
+        // Mouse drag（桌面测试用）
+        el.addEventListener('mousedown', e => {
+            startX      = e.clientX;
+            startScroll = el.scrollLeft;
+            isDragging  = true;
+            el.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+        window.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            el.scrollLeft = startScroll - (e.clientX - startX);
+        });
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            el.style.cursor = 'grab';
+        });
+    })();
 </script>
 </body>
 </html>
