@@ -70,71 +70,63 @@
             padding: 12px;
             gap: 12px;
         }
-        /* LEFT BRANDING PANEL */
-        .m-left {
-            width: 30%;
+        /* ══ 新移动端布局：顶栏 + 全宽表格 ══
+           横屏角度：顶栏在左上角，表格占满剩余 */
+        .mobile-app {
+            flex-direction: column !important;  /* 改为纵向：顶栏 + 表格 */
+            padding: 8px !important;
+            gap: 8px !important;
+        }
+        /* 紧凑顶栏（横屏左上角） */
+        .m-topbar {
             flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 12px;
-            padding: 8px 4px;
-        }
-        .m-app-icon {
-            width: 64px; height: 64px;
-            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
-            border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 8px 24px rgba(79,124,249,0.35), 0 2px 6px rgba(0,0,0,0.12);
-        }
-        .m-app-title {
-            font-size: 18px; font-weight: 800;
-            color: var(--text); line-height: 1.25;
-        }
-        .m-app-desc {
-            font-size: 11px; color: var(--muted); line-height: 1.6;
-        }
-        .m-formula-badge {
-            display: inline-block;
-            background: var(--accent-lt);
-            border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 10px;
-            padding: 6px 10px;
-            font-size: 10px; font-weight: 700;
-            color: var(--accent);
-            line-height: 1.5;
-        }
-        /* RIGHT CONTENT PANEL */
-        .m-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow: hidden;
-        }
-        /* Input card */
-        .m-input-card {
+            height: 48px;
             background: var(--white);
-            border-radius: var(--radius-xl);
+            border-radius: 14px;
             box-shadow: var(--shadow-card);
-            padding: 10px 16px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            padding: 0 12px;
+            gap: 10px;
+        }
+        /* 左侧：图标 + 标题 */
+        .m-brand {
+            display: flex; align-items: center; gap: 7px;
             flex-shrink: 0;
         }
-        .m-input-label {
-            font-size: 11px; font-weight: 700; color: var(--muted);
-            white-space: nowrap; flex-shrink: 0;
+        .m-brand .icon {
+            width: 30px; height: 30px;
+            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(79,124,249,0.35);
+            flex-shrink: 0;
         }
-        .m-input-wrap { position: relative; flex: 1; }
+        .m-brand .name {
+            font-size: 11px; font-weight: 800;
+            color: var(--text); white-space: nowrap;
+            line-height: 1.2;
+        }
+        .m-brand .sub {
+            font-size: 9px; color: var(--muted); white-space: nowrap;
+        }
+        .m-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+        /* 中间：电压输入 */
+        .m-input-inline {
+            display: flex; align-items: center; gap: 6px;
+            flex-shrink: 0;
+        }
+        .m-input-inline label {
+            font-size: 10px; font-weight: 700; color: var(--muted); white-space: nowrap;
+        }
+        .m-input-wrap { position: relative; }
         .m-input-wrap input {
-            width: 100%;
-            padding: 8px 36px 8px 14px;
+            width: 90px;
+            padding: 6px 26px 6px 10px;
             border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 22px; font-weight: 700;
+            border-radius: 9px;
+            font-size: 18px; font-weight: 700;
             font-family: 'Outfit', monospace;
             color: var(--text);
             background: #f7faff;
@@ -147,37 +139,33 @@
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
             background: var(--white);
         }
-        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 14px; font-weight: 400; }
+        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
         .m-input-unit {
-            position: absolute; right: 12px; top: 50%;
+            position: absolute; right: 7px; top: 50%;
             transform: translateY(-50%);
-            font-size: 13px; font-weight: 700; color: var(--muted);
+            font-size: 11px; font-weight: 700; color: var(--muted);
             pointer-events: none;
         }
-        /* Stats row */
-        .m-stats-row {
-            display: flex; gap: 10px; flex-shrink: 0;
+        /* 右侧：统计小芯片 */
+        .m-chips {
+            display: flex; gap: 6px;
+            margin-left: auto; flex-shrink: 0;
         }
-        .m-stat-card {
-            flex: 1;
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-card);
-            padding: 10px 14px;
+        .m-chip {
+            background: #f0f6ff;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 3px 10px;
+            text-align: center; white-space: nowrap;
         }
-        .m-stat-card .sv {
-            font-size: 26px; font-weight: 800;
-            color: var(--accent); line-height: 1;
-        }
-        .m-stat-card.alt .sv { color: var(--accent2); }
-        .m-stat-card .sk {
-            font-size: 10px; color: var(--muted); margin-top: 4px;
-        }
-        /* Table card */
+        .m-chip .cv { font-size: 14px; font-weight: 800; color: var(--accent); }
+        .m-chip.alt .cv { color: var(--accent2); }
+        .m-chip .ck { font-size: 9px; color: var(--muted); }
+        /* 表格卡片：占满剩余空间 */
         .m-table-card {
             flex: 1;
             background: var(--white);
-            border-radius: var(--radius-xl);
+            border-radius: 14px;
             box-shadow: var(--shadow-card);
             overflow: hidden;
             display: flex;
@@ -185,15 +173,15 @@
             min-height: 0;
         }
         .m-table-header {
-            padding: 8px 14px 6px;
+            padding: 6px 12px 5px;
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 6px;
             flex-shrink: 0;
         }
-        .m-table-header span {
-            font-size: 11px; font-weight: 700; color: var(--accent);
+        .m-table-header .th-label {
+            font-size: 10px; font-weight: 700; color: var(--accent);
         }
-        .m-table-header .hint {
+        .m-table-header .th-hint {
             margin-left: auto;
             font-size: 9px; color: var(--muted);
         }
@@ -203,8 +191,7 @@
             overflow-y: hidden;
             display: flex;
             align-items: center;
-            padding: 6px 10px;
-            /* 触屏滑动支持 */
+            padding: 4px 8px;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-x;
             cursor: grab;
@@ -361,55 +348,53 @@
     </style>
 </head>
 <body>
-<!-- ═══ 2. MOBILE LANDSCAPE  (rotated 180°) ═══ -->
+<!-- ═══ 2. MOBILE LANDSCAPE (90° rotated, portrait phone = landscape content) ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
-    <!-- LEFT: Branding -->
-    <div class="m-left">
-        <div class="m-app-icon">💡</div>
-        <div class="m-app-title">硅光电池<br>光照度计算器</div>
-        <div class="m-app-desc">硅光电池光照度标据害，执造设计高清电光照度计算器。</div>
-        <div class="m-formula-badge">
-            E = 0.3765 × U²<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ (d + 0.0612)²<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 59.08
+    <!-- 紧凑顶栏：横屏角度的左上角 -->
+    <div class="m-topbar">
+        <!-- 品牌区 -->
+        <div class="m-brand">
+            <div class="icon">💡</div>
+            <div>
+                <div class="name">DH-CGOP5小灯泡光强计算器</div>
+                <div class="sub">E = 0.3765·U² / (d+0.0612)² + 59.08</div>
+            </div>
         </div>
-    </div>
-    <!-- RIGHT: Controls + Table -->
-    <div class="m-right">
-        <!-- Input -->
-        <div class="m-input-card">
-            <span class="m-input-label">灯泡电压</span>
+        <div class="m-sep"></div>
+        <!-- 电压输入 -->
+        <div class="m-input-inline">
+            <label for="lampU_m">灯泡电压</label>
             <div class="m-input-wrap">
                 <input type="number" id="lampU_m"
-                       placeholder="适用范围 4 ~ 12"
+                       placeholder="4~12"
                        step="any" inputmode="decimal" autocomplete="off"
                        oninput="onInput('m', this.value)">
                 <span class="m-input-unit">V</span>
             </div>
         </div>
-        <!-- Stats -->
-        <div class="m-stats-row">
-            <div class="m-stat-card">
-                <div class="sv" id="mStatMin">—</div>
-                <div class="sk">最小光照度（Lx）</div>
+        <!-- 统计芯片 -->
+        <div class="m-chips">
+            <div class="m-chip">
+                <div class="cv" id="mStatMin">—</div>
+                <div class="ck">最小 Lx</div>
             </div>
-            <div class="m-stat-card alt">
-                <div class="sv" id="mStatMax">—</div>
-                <div class="sk">最大光照度（Lx）</div>
+            <div class="m-chip alt">
+                <div class="cv" id="mStatMax">—</div>
+                <div class="ck">最大 Lx</div>
             </div>
         </div>
-        <!-- Table card -->
-        <div class="m-table-card">
-            <div class="m-table-header">
-                <span>📊 实验数据表</span>
-                <span class="hint">← 左右滑动查看全部 21 组数据 →</span>
-            </div>
-            <div class="m-table-scroll" id="mTableArea">
-                <div class="empty-state">
-                    <div class="ei">🔦</div>
-                    <p>输入灯泡电压，表格横向自动生成</p>
-                </div>
+    </div>
+    <!-- 表格区：占满剩余全部空间 -->
+    <div class="m-table-card">
+        <div class="m-table-header">
+            <span class="th-label">📊 实验数据表</span>
+            <span class="th-hint">← 滑动查看全部 21 组数据 →</span>
+        </div>
+        <div class="m-table-scroll" id="mTableArea">
+            <div class="empty-state">
+                <div class="ei">🔦</div>
+                <p>输入灯泡电压，表格横向自动生成</p>
             </div>
         </div>
     </div>
