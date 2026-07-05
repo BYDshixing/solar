@@ -43,22 +43,24 @@
         }
         /* ══════════════════════════════
            MOBILE WRAP — 手机竖拿显示横屏内容
-           外层容器剩切视口，内层 90° 旋转充满屏幕
+           外层容器剪切视口，内层 90° 旋转充满屏幕
         ══════════════════════════════ */
         .mobile-wrap {
             position: fixed;
             inset: 0;
             overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            /* 用实际可视区域尺寸，避免浏览器工具栏影响 */
+            width: 100dvw;
+            height: 100dvh;
         }
-        /* 内层：宽 = 100vh，高 = 100vw（横屏尺寸），居中后顺时针 90° 充满竖屏 */
+        /* 内层：JS 动态设置精确像素尺寸，CSS 作为初始占位 */
         .mobile-app {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100vh;   /* 横屏宽 = 屏幕高度 */
-            height: 100vw;  /* 横屏高 = 屏幕宽度 */
+            /* 初始值由 JS adjustMobileApp() 覆盖 */
+            width: 100vh;
+            height: 100vw;
             transform: translate(-50%, -50%) rotate(90deg);
             transform-origin: center center;
             background: linear-gradient(135deg, #dce8fb 0%, #edf2fb 50%, #f0f4ff 100%);
@@ -472,6 +474,28 @@
     </div>
 </div>
 <script>
+    // ── 精确修正旋转容器尺寸 ──
+    // 用 window.innerWidth/innerHeight 代替 CSS 100vh/100vw
+    // 这两个值是真实可视区域，不包含地址栏、底部导航栏
+    function adjustMobileApp() {
+        const app = document.querySelector('.mobile-app');
+        const wrap = document.querySelector('.mobile-wrap');
+        if (!app || !wrap) return;
+        const W = window.innerWidth;   // 竖屏下：较小值
+        const H = window.innerHeight;  // 竖屏下：较大值
+        // 横屏内容的逻辑尺寸 = 把高宽互换
+        app.style.width  = H + 'px';   // 横屏宽 = 竖屏高
+        app.style.height = W + 'px';   // 横屏高 = 竖屏宽
+        // 外层 wrap 跟随真实视口
+        wrap.style.width  = W + 'px';
+        wrap.style.height = H + 'px';
+    }
+    adjustMobileApp();
+    window.addEventListener('resize', adjustMobileApp);
+    // visualViewport 在地址栏展开/收起时触发，更精准
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', adjustMobileApp);
+    }
     function calcE(u, d) {
         return 0.3765 * u * u / Math.pow(d + 0.0612, 2) + 59.08;
     }
