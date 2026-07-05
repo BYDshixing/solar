@@ -32,41 +32,15 @@
         }
         /* ══════════════════════════════
            SECTION VISIBILITY
+           手机始终显示 180° 横屏版，无需等待方向检测
         ══════════════════════════════ */
-        .desktop-app  { display: flex; }
-        .rotate-guard { display: none; }
-        .mobile-wrap  { display: none; }
+        .desktop-app { display: flex; }
+        .mobile-wrap { display: none; }
+        /* 手机端：直接显示旋转版，隐藏桌面版 */
         @media (max-width: 767px) {
             .desktop-app { display: none !important; }
+            .mobile-wrap { display: block !important; }
         }
-        @media (max-width: 767px) and (orientation: portrait) {
-            .rotate-guard { display: flex; }
-            .mobile-wrap  { display: none; }
-        }
-        @media (max-width: 767px) and (orientation: landscape) {
-            .rotate-guard { display: none; }
-            .mobile-wrap  { display: block; }
-        }
-        /* ══════════════════════════════
-           PORTRAIT GUARD
-        ══════════════════════════════ */
-        .rotate-guard {
-            position: fixed; inset: 0; z-index: 9999;
-            background: linear-gradient(145deg, #1e3a8a, #312e81);
-            flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 20px; color: #e0eaff;
-        }
-        .rotate-guard .phone-icon {
-            font-size: 60px;
-            animation: tilt 1.6s ease-in-out infinite alternate;
-        }
-        @keyframes tilt {
-            from { transform: rotate(-20deg); }
-            to   { transform: rotate(20deg); }
-        }
-        .rotate-guard h2 { font-size: 20px; font-weight: 700; color: #93c5fd; }
-        .rotate-guard p  { font-size: 13px; color: #7d9fc5; }
         /* ══════════════════════════════
            MOBILE WRAP  (180° rotated)
         ══════════════════════════════ */
@@ -369,12 +343,6 @@
     </style>
 </head>
 <body>
-<!-- ═══ 1. PORTRAIT GUARD ═══ -->
-<div class="rotate-guard">
-    <div class="phone-icon">📱</div>
-    <h2>请横屏使用</h2>
-    <p>将手机旋转至横屏方向以加载实验数据表</p>
-</div>
 <!-- ═══ 2. MOBILE LANDSCAPE  (rotated 180°) ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
