@@ -58,9 +58,8 @@
             position: fixed;
             inset: 0;
             overflow: hidden;
-            /* 用实际可视区域尺寸，避免浏览器工具栏影响 */
-            width: 100dvw;
-            height: 100dvh;
+            width: 100vw;   /* dvw 老浏览器不支持，用 vw 安全兆代 */
+            height: 100vh;  /* JS adjustMobileApp() 会覆盖为精确像素尺寸 */
         }
 
         /* 内层：JS 动态设置精确像素尺寸，CSS 作为初始占位 */
