@@ -118,18 +118,18 @@
             border-bottom: 2px solid #b8ccee;
         }
         .m-table-scroll .htable tr { height: 50%; } /* 每个子表各 2 行各占 50% */
-        /* ── 左侧控制栏 ── */
+        /* ── 左侧控制栏（微调压缩，给表格腾空间） ── */
         .m-controls {
-            width: 16%;
+            width: 14.5%;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
-            gap: 8px;
+            gap: 6px;
         }
         .m-ctrl-title {
-            font-size: 15px; font-weight: 800;
-            color: var(--text); line-height: 1.4;
+            font-size: 13px; font-weight: 800;
+            color: var(--text); line-height: 1.35;
             padding: 0;
         }
         /* 输入卡 */
@@ -137,21 +137,21 @@
             background: var(--white);
             border-radius: 10px;
             box-shadow: var(--shadow-card);
-            padding: 8px 10px;
+            padding: 6px 8px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
         .m-input-label {
-            font-size: 12px; font-weight: 700; color: var(--muted);
+            font-size: 10.5px; font-weight: 700; color: var(--muted);
         }
         .m-input-wrap { position: relative; }
         .m-input-wrap input {
             width: 100%;
-            padding: 6px 24px 6px 8px;
+            padding: 5px 20px 5px 6px;
             border: 1.5px solid var(--border);
             border-radius: 7px;
-            font-size: 24px; font-weight: 700;
+            font-size: 20px; font-weight: 700;
             font-family: 'Outfit', monospace;
             color: var(--text);
             background: #f7faff;
@@ -164,11 +164,11 @@
             box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
             background: var(--white);
         }
-        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 12px; font-weight: 400; }
+        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
         .m-input-unit {
-            position: absolute; right: 8px; top: 50%;
+            position: absolute; right: 6px; top: 50%;
             transform: translateY(-50%);
-            font-size: 12px; font-weight: 700; color: var(--muted);
+            font-size: 10.5px; font-weight: 700; color: var(--muted);
             pointer-events: none;
         }
         /* 统计芯片 */
@@ -176,14 +176,14 @@
             background: var(--white);
             border-radius: 10px;
             box-shadow: var(--shadow-card);
-            padding: 10px 6px;
+            padding: 8px 5px;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             white-space: nowrap;
         }
-        .m-chip .cv { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; }
+        .m-chip .cv { font-size: 19px; font-weight: 800; color: var(--accent); line-height: 1; }
         .m-chip.alt .cv { color: var(--accent2); }
-        .m-chip .ck { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .m-chip .ck { font-size: 10px; color: var(--muted); margin-top: 3px; }
         /* ── SHARED HTABLE ── */
         table.htable {
             border-collapse: separate; border-spacing: 0;
@@ -350,7 +350,7 @@
     <!-- 表格卡：占右侧大部分空间 -->
     <div class="m-table-card">
         <div class="m-table-header">
-            <span class="th-label">📊 DH-CGOP5 钨丝灯光强计算器 — 实验数据表</span>
+            <span class="th-label">📊 DH-CGOP5 小灯泡光强计算器 — 实验数据表</span>
             <span class="th-hint">← 滑动查看全部 20 组 →</span>
         </div>
         <div class="m-table-scroll" id="mTableArea">
@@ -362,7 +362,7 @@
     </div>
     <!-- 左侧控制栏：标题 + 输入 + 统计（竖屏视角在顶部） -->
     <div class="m-controls">
-        <div class="m-ctrl-title">DH-CGOP5<br>钨丝灯光强计算器</div>
+        <div class="m-ctrl-title">DH-CGOP5<br>小灯泡光强计算器</div>
         <div class="m-input-card">
             <div class="m-input-label">灯泡电压</div>
             <div class="m-input-wrap">
