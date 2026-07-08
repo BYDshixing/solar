@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="DH-CGOP5小灯泡光强计算器">
-    <title>DH-CGOP5小灯泡光强计算器</title>
+    <meta name="description" content="硅光电池光照度计算器">
+    <title>硅光电池光照度计算器</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
             --bg:         #edf2fb;
             --white:      #ffffff;
@@ -22,6 +23,7 @@
             --radius-lg:  14px;
             --shadow-card: 0 4px 20px rgba(37,99,235,0.08), 0 1px 4px rgba(0,0,0,0.04);
         }
+
         html, body {
             font-family: 'Outfit', 'Microsoft YaHei', sans-serif;
             -webkit-text-size-adjust: none;
@@ -30,29 +32,43 @@
             width: 100%; height: 100%;
             background: var(--bg);
         }
+
         /* ══════════════════════════════
            SECTION VISIBILITY
+           手机始终显示 180° 横屏版，无需等待方向检测
         ══════════════════════════════ */
         .desktop-app { display: flex; }
         .mobile-wrap { display: none; }
+
+        /* 手机端：直接显示旋转版，隐藏桌面版 */
         @media (max-width: 767px) {
             .desktop-app { display: none !important; }
             .mobile-wrap { display: block !important; }
         }
+
+
+
+
+
         /* ══════════════════════════════
-           MOBILE WRAP
+           MOBILE WRAP — 手机竖拿显示横屏内容
+           外层容器剪切视口，内层 90° 旋转充满屏幕
         ══════════════════════════════ */
         .mobile-wrap {
             position: fixed;
             inset: 0;
             overflow: hidden;
+            /* 用实际可视区域尺寸，避免浏览器工具栏影响 */
             width: 100dvw;
             height: 100dvh;
         }
+
+        /* 内层：JS 动态设置精确像素尺寸，CSS 作为初始占位 */
         .mobile-app {
             position: absolute;
             top: 50%;
             left: 50%;
+            /* 初始值由 JS adjustMobileApp() 覆盖 */
             width: 100vh;
             height: 100vw;
             transform: translate(-50%, -50%) rotate(90deg);
@@ -64,128 +80,33 @@
             padding: 12px;
             gap: 12px;
         }
+
+        /* ══ 手机横屏布局：左侧表格 (大头) + 右侧控制栏 (compact) ══ */
         .mobile-app {
             flex-direction: row !important;
             padding: 10px !important;
             gap: 10px !important;
         }
-        /* ── 左侧：品牌介绍（已收窄） ── */
-        .m-left {
-            width: 22%;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 10px;
-            padding: 4px 0;
-        }
-        .m-app-icon {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, #4f7cf9, #7c3aed);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 6px 18px rgba(79,124,249,0.35);
-            flex-shrink: 0;
-        }
-        .m-app-title {
-            font-size: 13px; font-weight: 800;
-            color: var(--text); line-height: 1.3;
-        }
-        .m-app-formula {
-            background: var(--accent-lt);
-            border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 10px;
-            padding: 8px 8px;
-            font-size: 9px; font-weight: 700;
-            color: var(--accent); line-height: 1.7;
-        }
-        /* ── 右侧：控制区 + 表格 ── */
-        .m-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow: hidden;
-            min-width: 0;
-        }
-        .m-ctrl-row {
-            flex-shrink: 0;
-            display: flex;
-            gap: 8px;
-            align-items: stretch;
-        }
-        .m-input-card {
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: var(--shadow-card);
-            padding: 6px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
-        .m-input-label {
-            font-size: 10px; font-weight: 700; color: var(--muted);
-            white-space: nowrap; flex-shrink: 0;
-        }
-        .m-input-wrap { position: relative; flex: 1; }
-        .m-input-wrap input {
-            width: 100%;
-            padding: 5px 28px 5px 10px;
-            border: 1.5px solid var(--border);
-            border-radius: 9px;
-            font-size: 20px; font-weight: 700;
-            font-family: 'Outfit', monospace;
-            color: var(--text);
-            background: #f7faff;
-            outline: none;
-            -webkit-appearance: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .m-input-wrap input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-            background: var(--white);
-        }
-        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 11px; font-weight: 400; }
-        .m-input-unit {
-            position: absolute; right: 8px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 11px; font-weight: 700; color: var(--muted);
-            pointer-events: none;
-        }
-        .m-chip {
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: var(--shadow-card);
-            padding: 5px 12px;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            white-space: nowrap; flex-shrink: 0;
-        }
-        .m-chip .cv { font-size: 16px; font-weight: 800; color: var(--accent); line-height: 1; }
-        .m-chip.alt .cv { color: var(--accent2); }
-        .m-chip .ck { font-size: 8px; color: var(--muted); margin-top: 2px; }
-        /* 表格卡 */
+
+        /* ── 表格卡：占满左侧大部分空间 ── */
         .m-table-card {
             flex: 1;
+            min-width: 0;
             background: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow-card);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 0;
         }
         .m-table-header {
-            padding: 5px 12px 4px;
+            padding: 8px 14px 6px;
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 6px;
             flex-shrink: 0;
         }
-        .m-table-header .th-label { font-size: 10px; font-weight: 700; color: var(--accent); }
-        .m-table-header .th-hint  { margin-left: auto; font-size: 9px; color: var(--muted); }
+        .m-table-header .th-label { font-size: 13px; font-weight: 700; color: var(--accent); }
+        .m-table-header .th-hint  { margin-left: auto; font-size: 11px; color: var(--muted); }
         .m-table-scroll {
             flex: 1;
             overflow-x: auto;
@@ -199,25 +120,78 @@
             overscroll-behavior-x: contain;
         }
         .m-table-scroll:active { cursor: grabbing; }
-        .m-table-scroll table {
-            pointer-events: none;
-            height: 100%;
-        }
-        .m-table-scroll .htable tr {
-            height: 25%;   /* 4 行各占 25% */
-        }
-        /* 署名栏 */
-        .m-table-footer {
+        .m-table-scroll table { pointer-events: none; height: 100%; }
+        .m-table-scroll .htable tr { height: 50%; }
+
+        /* ── 右侧控制栏 (固定宽度) ── */
+        .m-controls {
+            width: 22%;
             flex-shrink: 0;
-            padding: 4px 12px;
-            border-top: 1px solid var(--border);
-            background: var(--accent-lt);
-            text-align: center;
-            font-size: 9px;
-            font-weight: 600;
-            color: var(--accent);
-            letter-spacing: 0.05em;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
+        .m-ctrl-title {
+            font-size: 13px; font-weight: 800;
+            color: var(--text); line-height: 1.4;
+            padding: 2px 0;
+        }
+
+        /* 输入卡 */
+        .m-input-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m-input-label {
+            font-size: 10px; font-weight: 700; color: var(--muted);
+        }
+        .m-input-wrap { position: relative; }
+        .m-input-wrap input {
+            width: 100%;
+            padding: 6px 28px 6px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 22px; font-weight: 700;
+            font-family: 'Outfit', monospace;
+            color: var(--text);
+            background: #f7faff;
+            outline: none;
+            -webkit-appearance: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .m-input-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            background: var(--white);
+        }
+        .m-input-wrap input::placeholder { color: #c0cad6; font-size: 12px; font-weight: 400; }
+        .m-input-unit {
+            position: absolute; right: 8px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px; font-weight: 700; color: var(--muted);
+            pointer-events: none;
+        }
+
+        /* 统计芯片 */
+        .m-chip {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            padding: 8px 10px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
+        .m-chip .cv { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; }
+        .m-chip.alt .cv { color: var(--accent2); }
+        .m-chip .ck { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+
         /* ── SHARED HTABLE ── */
         table.htable {
             border-collapse: separate; border-spacing: 0;
@@ -235,6 +209,7 @@
         }
         .htable tr:last-child .row-label {
             border-bottom: none;
+            color: var(--accent2); border-right-color: var(--accent2);
         }
         .htable .row-label span {
             display: block; font-size: 8px; font-weight: 400;
@@ -250,15 +225,23 @@
         }
         .htable .data-cell.alt { background: #f7faff; }
         .htable tr:last-child .data-cell {
-            border-bottom: none;
+            border-bottom: none; font-weight: 700;
+            color: var(--accent); background: var(--accent-lt);
         }
+        .htable tr:last-child .data-cell.alt { background: #dbeafe; }
         .htable .data-cell:hover { background: #e0edff !important; }
-        /* Mobile table sizing */
-        .m-table-scroll .htable .row-label { min-width: 72px; }
-        .m-table-scroll .htable .data-cell  { min-width: 52px; font-size: 11px; }
+
+        /* Mobile table sizing — PPT 可读大字号 */
+        .m-table-scroll .htable .row-label { min-width: 90px; padding: 0 14px; font-size: 17px; }
+        .m-table-scroll .htable .row-label span { font-size: 11px; }
+        .m-table-scroll .htable .data-cell  { min-width: 72px; padding: 0 8px; font-size: 20px; font-weight: 600; }
+        .m-table-scroll .htable tr:last-child .data-cell { font-size: 20px; font-weight: 700; }
+
+
         /* Desktop table sizing */
         .d-table-scroll .htable .row-label { min-width: 100px; height: 54px; font-size: 12px; padding: 0 16px; }
         .d-table-scroll .htable .data-cell  { min-width: 76px;  height: 54px; font-size: 14px; }
+
         /* Empty */
         .empty-state {
             display: flex; flex-direction: column;
@@ -267,27 +250,29 @@
         }
         .empty-state .ei { font-size: 32px; opacity: 0.35; }
         .empty-state p   { font-size: 12px; }
+
+
         /* ══════════════════════════════
-           DESKTOP APP（左侧已收窄）
+           DESKTOP APP  (unchanged style)
         ══════════════════════════════ */
         .desktop-app {
             height: 100vh; overflow: hidden;
         }
         .d-side {
-            width: 230px; flex-shrink: 0;
+            width: 260px; flex-shrink: 0;
             background: var(--white);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column;
-            gap: 18px; padding: 24px 16px;
+            gap: 18px; padding: 24px 18px;
             overflow-y: auto;
         }
         .d-logo { display: flex; align-items: center; gap: 10px; }
         .d-logo .icon {
-            width: 40px; height: 40px;
+            width: 42px; height: 42px;
             background: linear-gradient(135deg, #4f7cf9, #7c3aed);
             border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
+            font-size: 22px; flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(79,124,249,0.3);
         }
         .d-logo .dtitle { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
@@ -297,7 +282,7 @@
             background: var(--accent-lt);
             border: 1px solid rgba(37,99,235,0.18);
             border-radius: var(--radius-lg);
-            padding: 12px;
+            padding: 14px;
         }
         .d-slabel {
             font-size: 10px; font-weight: 700;
@@ -305,17 +290,17 @@
             text-transform: uppercase; margin-bottom: 10px;
         }
         .d-formula-expr {
-            font-size: 12px; font-weight: 700;
+            font-size: 13px; font-weight: 700;
             color: var(--accent2); text-align: center; line-height: 1.9;
         }
         .d-formula-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
         .d-input-card { display: flex; flex-direction: column; gap: 10px; }
         .d-input-wrap { position: relative; }
         .d-input-wrap input {
-            width: 100%; padding: 12px 46px 12px 14px;
+            width: 100%; padding: 13px 46px 13px 14px;
             background: var(--white); border: 1.5px solid var(--border);
             border-radius: 10px; color: var(--text);
-            font-size: 20px; font-weight: 700; font-family: 'Outfit', monospace;
+            font-size: 22px; font-weight: 700; font-family: 'Outfit', monospace;
             outline: none; -webkit-appearance: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -333,9 +318,9 @@
         .d-stats { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .d-stat-box {
             background: #f7faff; border: 1px solid var(--border);
-            border-radius: 10px; padding: 10px 6px; text-align: center;
+            border-radius: 10px; padding: 12px 8px; text-align: center;
         }
-        .d-stat-box .sv { font-size: 16px; font-weight: 700; color: var(--accent); }
+        .d-stat-box .sv { font-size: 17px; font-weight: 700; color: var(--accent); }
         .d-stat-box.alt .sv { color: var(--accent2); }
         .d-stat-box .sk { font-size: 10px; color: var(--muted); margin-top: 3px; }
         .d-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -355,6 +340,7 @@
             flex: 1; overflow-x: auto; overflow-y: auto;
             padding: 22px; background: var(--bg);
         }
+
         /* scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -362,65 +348,64 @@
     </style>
 </head>
 <body>
-<!-- ═══ MOBILE LANDSCAPE ═══ -->
+
+
+
+
+<!-- ═══ 2. MOBILE LANDSCAPE (90° 旋转，左侧表格 + 右侧控制栏) ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
-    <!-- 左侧: 品牌介绍 -->
-    <div class="m-left">
-        <div class="m-app-icon">💡</div>
-        <div class="m-app-title">DH-CGOP5<br>小灯泡光强计算器</div>
-        <div class="m-app-formula">
-            E = 0.3765 × U²<br>
-            &nbsp;&nbsp;&nbsp;/ (d + 0.0612)²<br>
-            &nbsp;&nbsp;&nbsp;+ 59.08
+
+    <!-- 表格卡：占左侧大部分空间 -->
+    <div class="m-table-card">
+        <div class="m-table-header">
+            <span class="th-label">📊 DH-CGOP5 小灯泡光强计算器 — 实验数据表</span>
+            <span class="th-hint">← 滑动查看全部 21 组 →</span>
+        </div>
+        <div class="m-table-scroll" id="mTableArea">
+            <div class="empty-state">
+                <div class="ei">🔦</div>
+                <p>输入灯泡电压，表格自动生成</p>
+            </div>
         </div>
     </div>
-    <!-- 右侧: 控制区 + 表格 -->
-    <div class="m-right">
-        <div class="m-ctrl-row">
-            <div class="m-input-card">
-                <span class="m-input-label">灯泡电压</span>
-                <div class="m-input-wrap">
-                    <input type="number" id="lampU_m"
-                           placeholder="4 ~ 12"
-                           step="any" inputmode="decimal" autocomplete="off"
-                           oninput="onInput('m', this.value)">
-                    <span class="m-input-unit">V</span>
-                </div>
-            </div>
-            <div class="m-chip">
-                <div class="cv" id="mStatMin">—</div>
-                <div class="ck">最小 Lx</div>
-            </div>
-            <div class="m-chip alt">
-                <div class="cv" id="mStatMax">—</div>
-                <div class="ck">最大 Lx</div>
+
+    <!-- 右侧控制栏：标题 + 输入 + 统计 -->
+    <div class="m-controls">
+        <div class="m-ctrl-title">DH-CGOP5<br>小灯泡光强计算器</div>
+        <div class="m-input-card">
+            <div class="m-input-label">灯泡电压</div>
+            <div class="m-input-wrap">
+                <input type="number" id="lampU_m"
+                       placeholder="4~12"
+                       step="any" inputmode="decimal" autocomplete="off"
+                       oninput="onInput('m', this.value)">
+                <span class="m-input-unit">V</span>
             </div>
         </div>
-        <div class="m-table-card">
-            <div class="m-table-header">
-                <span class="th-label">📊 实验数据表</span>
-                <span class="th-hint">← 滑动查看全部 21 组 →</span>
-            </div>
-            <div class="m-table-scroll" id="mTableArea">
-                <div class="empty-state">
-                    <div class="ei">🔦</div>
-                    <p>输入灯泡电压，表格自动生成</p>
-                </div>
-            </div>
-            <div class="m-table-footer">上海电机学院团队创作 — 大学物理实验</div>
+        <div class="m-chip">
+            <div class="cv" id="mStatMin">—</div>
+            <div class="ck">最小 Lx</div>
+        </div>
+        <div class="m-chip alt">
+            <div class="cv" id="mStatMax">—</div>
+            <div class="ck">最大 Lx</div>
         </div>
     </div>
+
 </div>
 </div>
-<!-- ═══ DESKTOP APP ═══ -->
+
+
+<!-- ═══ 3. DESKTOP APP ═══ -->
 <div class="desktop-app">
+
     <aside class="d-side">
         <div class="d-logo">
             <div class="icon">💡</div>
             <div>
-                <div class="dtitle">DH-CGOP5<br>小灯泡光强计算器</div>
-                <div class="dsub">Lamp Illuminance Calculator</div>
+                <div class="dtitle">硅光电池<br>光照度计算器</div>
+                <div class="dsub">Silicon Photodiode E-Meter</div>
             </div>
         </div>
         <div class="d-divider"></div>
@@ -457,6 +442,7 @@
             </div>
         </div>
     </aside>
+
     <div class="d-main">
         <header class="d-main-header">
             <h2>📊 实验数据表　步长 0.01 m　·　d = 0.05 m → 0.25 m</h2>
@@ -470,42 +456,61 @@
             </div>
         </div>
     </div>
+
 </div>
+
+
 <script>
+    // ── 精确修正旋转容器尺寸 ──
+    // 用 window.innerWidth/innerHeight 代替 CSS 100vh/100vw
+    // 这两个值是真实可视区域，不包含地址栏、底部导航栏
     function adjustMobileApp() {
         const app = document.querySelector('.mobile-app');
         const wrap = document.querySelector('.mobile-wrap');
         if (!app || !wrap) return;
-        const W = window.innerWidth;
-        const H = window.innerHeight;
-        app.style.width  = H + 'px';
-        app.style.height = W + 'px';
+
+        const W = window.innerWidth;   // 竖屏下：较小值
+        const H = window.innerHeight;  // 竖屏下：较大值
+
+        // 横屏内容的逻辑尺寸 = 把高宽互换
+        app.style.width  = H + 'px';   // 横屏宽 = 竖屏高
+        app.style.height = W + 'px';   // 横屏高 = 竖屏宽
+
+        // 外层 wrap 跟随真实视口
         wrap.style.width  = W + 'px';
         wrap.style.height = H + 'px';
     }
+
     adjustMobileApp();
     window.addEventListener('resize', adjustMobileApp);
+    // visualViewport 在地址栏展开/收起时触发，更精准
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', adjustMobileApp);
     }
+
     function calcE(u, d) {
         return 0.3765 * u * u / Math.pow(d + 0.0612, 2) + 59.08;
     }
-    function buildTable(areaId, minId, maxId, uVal, isMobile) {
+
+
+    function buildTable(areaId, minId, maxId, uVal) {
         const area    = document.getElementById(areaId);
         const statMin = document.getElementById(minId);
         const statMax = document.getElementById(maxId);
+
         if (isNaN(uVal)) {
             area.innerHTML = '<div class="empty-state"><div class="ei">🔦</div><p>请输入灯泡电压</p></div>';
             if (statMin) statMin.textContent = '—';
             if (statMax) statMax.textContent = '—';
             return;
         }
+
         const cols = [];
         for (let i = 5; i <= 25; i++) {
             const d = i / 100;
             cols.push({ d: d.toFixed(2), e: calcE(uVal, d).toFixed(2) });
         }
+
         const eVals = cols.map(c => parseFloat(c.e));
         if (statMin) statMin.textContent = Math.min(...eVals).toFixed(1);
         if (statMax) statMax.textContent = Math.max(...eVals).toFixed(1);
@@ -513,127 +518,77 @@
         const tbl = document.createElement('table');
         tbl.className = 'htable';
 
-        if (isMobile) {
-            // 移动端：拆分为上下两段，4行统一蓝色样式
-            const mid = Math.ceil(cols.length / 2);
-            const colsTop = cols.slice(0, mid);
-            const colsBottom = cols.slice(mid);
+        // Row 1: distance d
+        const tr1  = document.createElement('tr');
+        const lbl1 = document.createElement('th');
+        lbl1.className = 'row-label';
+        lbl1.innerHTML = '距离 d<span>单位 m</span>';
+        tr1.appendChild(lbl1);
+        cols.forEach((c, i) => {
+            const td = document.createElement('td');
+            td.className = 'data-cell' + (i % 2 ? ' alt' : '');
+            td.textContent = c.d;
+            tr1.appendChild(td);
+        });
+        tbl.appendChild(tr1);
 
-            // 上段：距离行
-            const tr1  = document.createElement('tr');
-            const lbl1 = document.createElement('th');
-            lbl1.className = 'row-label';
-            lbl1.innerHTML = '距离 d<span>单位 m</span>';
-            tr1.appendChild(lbl1);
-            colsTop.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.d;
-                tr1.appendChild(td);
-            });
-            tbl.appendChild(tr1);
-
-            // 上段：照度行
-            const tr2  = document.createElement('tr');
-            const lbl2 = document.createElement('th');
-            lbl2.className = 'row-label';
-            lbl2.innerHTML = '光照度 E<span>单位 Lx</span>';
-            tr2.appendChild(lbl2);
-            colsTop.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.e;
-                tr2.appendChild(td);
-            });
-            tbl.appendChild(tr2);
-
-            // 下段：距离行
-            const tr3  = document.createElement('tr');
-            const lbl3 = document.createElement('th');
-            lbl3.className = 'row-label';
-            lbl3.innerHTML = '距离 d<span>单位 m</span>';
-            tr3.appendChild(lbl3);
-            colsBottom.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.d;
-                tr3.appendChild(td);
-            });
-            tbl.appendChild(tr3);
-
-            // 下段：照度行
-            const tr4  = document.createElement('tr');
-            const lbl4 = document.createElement('th');
-            lbl4.className = 'row-label';
-            lbl4.innerHTML = '光照度 E<span>单位 Lx</span>';
-            tr4.appendChild(lbl4);
-            colsBottom.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.e;
-                tr4.appendChild(td);
-            });
-            tbl.appendChild(tr4);
-
-        } else {
-            // 桌面端：横向长表格
-            const tr1  = document.createElement('tr');
-            const lbl1 = document.createElement('th');
-            lbl1.className = 'row-label';
-            lbl1.innerHTML = '距离 d<span>单位 m</span>';
-            tr1.appendChild(lbl1);
-            cols.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.d;
-                tr1.appendChild(td);
-            });
-            tbl.appendChild(tr1);
-
-            const tr2  = document.createElement('tr');
-            const lbl2 = document.createElement('th');
-            lbl2.className = 'row-label';
-            lbl2.innerHTML = '光照度 E<span>单位 Lx</span>';
-            tr2.appendChild(lbl2);
-            cols.forEach((c, i) => {
-                const td = document.createElement('td');
-                td.className = 'data-cell' + (i % 2 ? ' alt' : '');
-                td.textContent = c.e;
-                tr2.appendChild(td);
-            });
-            tbl.appendChild(tr2);
-        }
+        // Row 2: illuminance E
+        const tr2  = document.createElement('tr');
+        const lbl2 = document.createElement('th');
+        lbl2.className = 'row-label';
+        lbl2.innerHTML = '光照度 E<span>单位 Lx</span>';
+        tr2.appendChild(lbl2);
+        cols.forEach((c, i) => {
+            const td = document.createElement('td');
+            td.className = 'data-cell' + (i % 2 ? ' alt' : '');
+            td.textContent = c.e;
+            tr2.appendChild(td);
+        });
+        tbl.appendChild(tr2);
 
         area.innerHTML = '';
         area.appendChild(tbl);
     }
+
     function onInput(src, val) {
         const u = parseFloat(val);
-        if (src === 'd') buildTable('dTableArea', 'dStatMin', 'dStatMax', u, false);
-        else             buildTable('mTableArea', 'mStatMin', 'mStatMax', u, true);
+        if (src === 'd') buildTable('dTableArea', 'dStatMin', 'dStatMax', u);
+        else             buildTable('mTableArea', 'mStatMin', 'mStatMax', u);
     }
-    // 触屏拖拽滚动
+
+    // ── 触屏拖拽滚动 ──
+    // 注意：内容整体旋转了 90°，所以手指在屏幕上的垂直方向
+    // 对应内容坐标系的水平方向，需要用 clientY 驱动 scrollLeft
     (function () {
         const el = document.getElementById('mTableArea');
         if (!el) return;
+
         let startY = 0, startX = 0, startScroll = 0, isDragging = false;
+
+        // Touch events（手机触屏）
         el.addEventListener('touchstart', e => {
             startY     = e.touches[0].clientY;
             startX     = e.touches[0].clientX;
             startScroll = el.scrollLeft;
             isDragging  = true;
         }, { passive: true });
+
         el.addEventListener('touchmove', e => {
             if (!isDragging) return;
+            // 因为容器旋转 90°，垂直手势 → 水平滚动
             const dy = e.touches[0].clientY - startY;
             const dx = e.touches[0].clientX - startX;
+            // 取绝对值更大的方向作为主方向
             if (Math.abs(dy) > Math.abs(dx)) {
                 el.scrollLeft = startScroll - dy;
             } else {
                 el.scrollLeft = startScroll + dx;
             }
         }, { passive: true });
+
         el.addEventListener('touchend', () => { isDragging = false; }, { passive: true });
+
+        // Mouse drag（桌面测试用）
         el.addEventListener('mousedown', e => {
             startX      = e.clientX;
             startScroll = el.scrollLeft;
@@ -651,5 +606,6 @@
         });
     })();
 </script>
+
 </body>
 </html>
