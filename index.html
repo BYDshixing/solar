@@ -350,7 +350,7 @@
     <div class="m-table-card">
         <div class="m-table-header">
             <span class="th-label">📊 DH-CGOP5 小灯泡光强计算器 — 实验数据表</span>
-            <span class="th-hint">← 滑动查看全部 21 组 →</span>
+            <span class="th-hint">← 滑动查看全部 20 组 →</span>
         </div>
         <div class="m-table-scroll" id="mTableArea">
             <div class="empty-state">
@@ -510,7 +510,7 @@
             return;
         }
         const cols = [];
-        for (let i = 5; i <= 25; i++) {
+        for (let i = 5; i <= 24; i++) {   // 0.05 ~ 0.24, 共 20 组
             const d = i / 100;
             cols.push({ d: d.toFixed(2), e: calcE(uVal, d).toFixed(2) });
         }
@@ -518,11 +518,11 @@
         if (statMin) statMin.textContent = Math.min(...eVals).toFixed(1);
         if (statMax) statMax.textContent = Math.max(...eVals).toFixed(1);
         if (isMobile) {
-            // ── 手机：拆成两组，一屏全部放下 ──
-            // 组1: 0.05 ~ 0.15 (11 个值)
-            // 组2: 0.16 ~ 0.25 (10 个值)
-            const group1 = cols.slice(0, 11);
-            const group2 = cols.slice(11);
+            // 手机：拆成两组，各 10 个，对称不重叠
+            // 组1: 0.05 ~ 0.14 (10 个値)
+            // 组2: 0.15 ~ 0.24 (10 个値)
+            const group1 = cols.slice(0, 10);
+            const group2 = cols.slice(10);
             const wrapper = document.createElement('div');
             wrapper.className = 'table-group';
             wrapper.appendChild(makeSubTable(group1));
