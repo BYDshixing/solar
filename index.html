@@ -69,13 +69,13 @@
             padding: 12px;
             gap: 12px;
         }
-        /* ══ 手机横屏布局：左侧表格 (大头) + 右侧控制栏 (compact) ══ */
+        /* ══ 手机横屏布局：左侧控制栏 + 右侧表格 (大头) ══ */
         .mobile-app {
-            flex-direction: row !important;
+            flex-direction: row-reverse !important;
             padding: 7px !important;
             gap: 7px !important;
         }
-        /* ── 表格卡：占满左侧大部分空间 ── */
+        /* ── 表格卡：占满右侧大部分空间 ── */
         .m-table-card {
             flex: 1;
             min-width: 0;
@@ -118,7 +118,7 @@
             border-bottom: 2px solid #b8ccee;
         }
         .m-table-scroll .htable tr { height: 50%; } /* 每个子表各 2 行各占 50% */
-        /* ── 右侧控制栏 ── */
+        /* ── 左侧控制栏 ── */
         .m-controls {
             width: 16%;
             flex-shrink: 0;
@@ -344,10 +344,10 @@
     </style>
 </head>
 <body>
-<!-- ═══ 2. MOBILE LANDSCAPE (90° 旋转，左侧表格 + 右侧控制栏) ═══ -->
+<!-- ═══ 2. MOBILE LANDSCAPE (90° 旋转，左侧控制栏 + 右侧表格) ═══ -->
 <div class="mobile-wrap">
 <div class="mobile-app">
-    <!-- 表格卡：占左侧大部分空间 -->
+    <!-- 表格卡：占右侧大部分空间 -->
     <div class="m-table-card">
         <div class="m-table-header">
             <span class="th-label">📊 DH-CGOP5 小灯泡光强计算器 — 实验数据表</span>
@@ -360,7 +360,7 @@
             </div>
         </div>
     </div>
-    <!-- 右侧控制栏：标题 + 输入 + 统计 -->
+    <!-- 左侧控制栏：标题 + 输入 + 统计（竖屏视角在顶部） -->
     <div class="m-controls">
         <div class="m-ctrl-title">DH-CGOP5<br>小灯泡光强计算器</div>
         <div class="m-input-card">
